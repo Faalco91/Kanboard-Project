@@ -64,8 +64,29 @@ class User extends Authenticatable implements MustVerifyEmail
             ->implode('');
     }
 
-    public function projects() {
+    public function ownedProjects() {
         return $this->hasMany(Project::class);
+    }
+
+    public function memberProjects()
+    {
+        return $this->belongsToMany(Project::class, 'project_members')
+                    ->withPivot('role', 'status', 'invitation_sent_at', 'invitation_accepted_at')
+                    ->wherePivot('status', 'accepted');
+    }
+
+    public function projects()
+    {
+        // Utiliser une sous-requête pour obtenir les IDs des projets
+        $projectIds = Project::where('user_id', $this->id)
+            ->orWhereHas('members', function ($query) {
+                $query->where('user_id', $this->id)
+                      ->where('status', 'accepted');
+            })
+            ->pluck('id');
+
+        // Retourner une nouvelle requête basée sur les IDs
+        return Project::whereIn('id', $projectIds);
     }
 
     public function tasks()

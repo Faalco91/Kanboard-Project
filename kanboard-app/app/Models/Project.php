@@ -22,5 +22,21 @@ class Project extends Model
     {
         return $this->hasMany(Task::class);
     }
+
+    public function members()
+    {
+        return $this->belongsToMany(User::class, 'project_members')
+                    ->withPivot('role', 'status', 'invitation_sent_at', 'invitation_accepted_at')
+                    ->withTimestamps();
+    }
     
+    public function pendingMembers()
+    {
+        return $this->members()->wherePivot('status', 'pending');
+    }
+
+    public function acceptedMembers()
+    {
+        return $this->members()->wherePivot('status', 'accepted');
+    }
 }
