@@ -3,32 +3,51 @@
 namespace App\Http\Controllers;
 
 use App\Models\Project;
+use App\Services\ProjectService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ProjectController extends Controller
 {
+    use AuthorizesRequests;
+    
+    protected $projectService;
+
+    public function __construct(ProjectService $projectService)
+    {
+        $this->projectService = $projectService;
+    }
+
     // Affiche tous les projets de l'utilisateur qui est connecté
     public function index()
     {
-        $projects = Auth::user()->projects; // via relation dans User
+        $projects = $this->projectService->getUserProjects(Auth::user());
         return view('projects.index', compact('projects'));
     }
-        // Créer un nouveau projet
-    public function create(Request $request)
+
+    // Afficher le formulaire de création
+    public function create()
     {
-        $request->validate([
+        return view('projects.create');
+    }
+
+    // Créer un nouveau projet
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
         ]);
 
-        $project = Project::create([
-            'name' => $request->name,
-            'description' => $request->description,
-            'user_id' => Auth::id(),
-        ]);
+        $project = $this->projectService->create($validated, Auth::user());
 
-        return response()->json($project, 201);
+        if ($request->wantsJson()) {
+            return response()->json($project, 201);
+        }
+
+        return redirect()->route('projects.show', $project)
+            ->with('success', 'Projet créé avec succès.');
     }
 
     // Afficher un seul projet (celui sélectionné)
@@ -37,10 +56,7 @@ class ProjectController extends Controller
         $project = Project::findOrFail($id);
         $userInitials = strtoupper(substr(auth()->user()->name, 0, 1));
     
-        // Vérifie que le projet appartient à l'utilisateur connecté
-        if ($project->user_id !== Auth::id()) {
-            abort(403); // Accès interdit
-        }
+        $this->authorize('view', $project);
     
         // Récupère toutes les tâches liées à ce projet
         $tasks = $project->tasks()->get();
@@ -54,19 +70,34 @@ class ProjectController extends Controller
         $project = Project::findOrFail($id);
         $this->authorize('update', $project);
 
-        $project->update($request->only(['name', 'description']));
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
 
-        return response()->json($project);
+        $project = $this->projectService->update($project, $validated);
+
+        if ($request->wantsJson()) {
+            return response()->json($project);
+        }
+
+        return redirect()->route('projects.show', $project)
+            ->with('success', 'Projet mis à jour avec succès.');
     }
 
     // Supprimer un projet
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $project = Project::findOrFail($id);
         $this->authorize('delete', $project);
 
         $project->delete();
 
-        return response()->json(['message' => 'Projet supprimé']);
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'Projet supprimé']);
+        }
+
+        return redirect()->route('dashboard')
+            ->with('success', 'Projet supprimé avec succès.');
     }
 }

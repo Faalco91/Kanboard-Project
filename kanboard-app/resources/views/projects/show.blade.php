@@ -1,30 +1,46 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="page-title">
-            Projet : {{ $project->name }}
-        </h2>
+        <div class="flex justify-between items-center">
+            <h2 class="text-xl font-semibold leading-tight text-gray-800">
+                {{ $project->name }}
+            </h2>
+            <nav class="flex space-x-4">
+                <a href="{{ route('projects.show', $project) }}" 
+                   class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('projects.show') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' }}">
+                    Tableau Kanban
+                </a>
+                <a href="{{ route('project.members.index', $project) }}" 
+                   class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('project.members.*') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' }}">
+                    Membres
+                </a>
+            </nav>
+        </div>
     </x-slot>
 
     @vite(['resources/css/show.css'])
     @vite(['resources/css/task.css'])
 
-    <div class="grid-kanban">
-        @foreach(['Backlog', 'To Do', 'In Progress', 'To Be Checked', 'Done'] as $column)
-            <div class="kanban-column-container">
-                <div class="kanban-header">
-                    <h3>{{ $column }}</h3>
-                    <div class="kanban-menu">⋯</div>
-                </div>
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="grid-kanban">
+                @foreach(['Backlog', 'To Do', 'In Progress', 'To Be Checked', 'Done'] as $column)
+                    <div class="kanban-column-container">
+                        <div class="kanban-header">
+                            <h3>{{ $column }}</h3>
+                            <div class="kanban-menu">⋯</div>
+                        </div>
 
-                <ul class="kanban-column" id="column-{{ Str::slug($column) }}" data-column="{{ $column }}">
-                    {{-- Les cartes iront ici --}}
-                </ul>
+                        <ul class="kanban-column" id="column-{{ Str::slug($column) }}" data-column="{{ $column }}">
+                            {{-- Les cartes iront ici --}}
+                        </ul>
 
-                <button class="add-task-btn" data-column="{{ $column }}">
-                    + Ajouter une carte
-                </button>
+                        <button class="add-task-btn" data-column="{{ $column }}">
+                            + Ajouter une carte
+                        </button>
+                    </div>
+                @endforeach
             </div>
-        @endforeach
+        </div>
     </div>
 
     <!-- Modal personnalisée -->
@@ -59,10 +75,10 @@
             </form>
         </div>
     </div>
-<script>
-    const projectId = {{ $project->id }}; // Déclaration de l'ID du projet accessible à l'echelle globale de la page
-    const tasks = @json($tasks); //transmission des données déjà récupérer en php,issues de la table tasks dans la bdd, à une variable js sous format json. Cela permet de ne pas avoir à les récuperer à chaque fois via une methode fetch
-    const userInitials = @json($userInitials); // meme fonctionnement que pour tasks, mais pour récupérer la première lettre du nom de l'utilisateur connecté
-</script>
 
+    <script>
+        const projectId = {{ $project->id }}; // Déclaration de l'ID du projet accessible à l'echelle globale de la page
+        const tasks = @json($tasks); //transmission des données déjà récupérer en php,issues de la table tasks dans la bdd, à une variable js sous format json. Cela permet de ne pas avoir à les récuperer à chaque fois via une methode fetch
+        const userInitials = @json($userInitials); // meme fonctionnement que pour tasks, mais pour récupérer la première lettre du nom de l'utilisateur connecté
+    </script>
 </x-app-layout>
