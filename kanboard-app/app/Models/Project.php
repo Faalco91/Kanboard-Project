@@ -17,4 +17,10 @@ class Project extends Model
         // On peut accéder à l'utilisateur propriétaire d'un projet via $project->user
         return $this->belongsTo(User::class);
     }
+    
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
+    
 }
