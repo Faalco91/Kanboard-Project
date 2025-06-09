@@ -35,8 +35,17 @@ class ProjectController extends Controller
     public function show($id)
     {
         $project = Project::findOrFail($id);
-        $this->authorize('view', $project);
-        return response()->json($project);
+        $userInitials = strtoupper(substr(auth()->user()->name, 0, 1));
+    
+        // Vérifie que le projet appartient à l'utilisateur connecté
+        if ($project->user_id !== Auth::id()) {
+            abort(403); // Accès interdit
+        }
+    
+        // Récupère toutes les tâches liées à ce projet
+        $tasks = $project->tasks()->get();
+    
+        return view('projects.show', compact('project', 'tasks', 'userInitials'));
     }
 
     // Mettre à jour un projet
