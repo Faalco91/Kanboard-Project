@@ -56,8 +56,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/projects/{project}/reject-invitation', [ProjectMemberController::class, 'rejectInvitation'])
          ->name('project.members.reject-invitation');
 
-    // Task routes
-    Route::resource('projects.tasks', TaskController::class)->shallow();
+    // Task routes    
+    Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
+    Route::put('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
+    Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
 });
 
 require __DIR__.'/auth.php';
