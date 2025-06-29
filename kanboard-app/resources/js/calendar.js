@@ -151,7 +151,7 @@ class Calendar {
                 <div class="time-slot">
                     ${hour.toString().padStart(2, '0')}:00
                 </div>
-                <div class="day-content" data-hour="${hour}" onclick="calendar.openTaskModal('${timeSlot.toISOString().split('T')[0]}', ${hour})">
+                <div class="day-content" data-hour="${hour}" onclick="calendar.openTaskModal('${this.formatDateForInput(timeSlot)}', ${hour})">
                     ${this.getTasksForDate(this.currentDate)}
                 </div>
             `;
@@ -190,9 +190,9 @@ class Calendar {
                 
                 html += `
                     <div class="week-day ${isToday ? 'today' : ''}" 
-                         data-date="${date.toISOString().split('T')[0]}" 
+                         data-date="${this.formatDateForInput(date)}" 
                          data-hour="${hour}"
-                         onclick="calendar.openTaskModal('${date.toISOString().split('T')[0]}', ${hour})">
+                         onclick="calendar.openTaskModal('${this.formatDateForInput(date)}', ${hour})">
                         ${this.getTasksForDate(date)}
                     </div>
                 `;
@@ -228,8 +228,8 @@ class Calendar {
             
             html += `
                 <div class="month-day ${isToday ? 'today' : ''} ${isOtherMonth ? 'other-month' : ''}" 
-                     data-date="${currentDate.toISOString().split('T')[0]}"
-                     onclick="calendar.openTaskModal('${currentDate.toISOString().split('T')[0]}')">
+                     data-date="${this.formatDateForInput(currentDate)}"
+                     onclick="calendar.openTaskModal('${this.formatDateForInput(currentDate)}')">
                     <div class="day-number">${dayNumber}</div>
                     ${this.getTasksForDate(currentDate)}
                 </div>
@@ -254,12 +254,12 @@ class Calendar {
     }
 
     getTasksForDate(date) {
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = this.formatDateForInput(date);
         
         const dayTasks = tasks.filter(task => {
             // Si la tâche a une date d'échéance, filtrer par date
             if (task.due_date) {
-                const taskDate = new Date(task.due_date).toISOString().split('T')[0];
+                const taskDate = this.formatDateForInput(new Date(task.due_date));
                 return taskDate === dateStr;
             }
             // Si pas de date, afficher toutes les tâches (comportement par défaut)
@@ -275,7 +275,7 @@ class Calendar {
     }
 
     getTasksForDateAndHour(date, hour) {
-        const dateStr = date.toISOString().split('T')[0];
+        const dateStr = this.formatDateForInput(date);
         const dayTasks = tasks.filter(task => {
             // Filtrer les tâches par date d'échéance
             if (task.due_date) {
@@ -314,7 +314,7 @@ class Calendar {
         if (date) {
             dateInput.value = date;
         } else {
-            dateInput.value = new Date().toISOString().split('T')[0];
+            dateInput.value = this.formatDateForInput(new Date());
         }
         
         modeInput.value = 'create';
@@ -322,7 +322,7 @@ class Calendar {
         
         // Réinitialiser le formulaire
         document.getElementById('taskForm').reset();
-        dateInput.value = date || new Date().toISOString().split('T')[0];
+        dateInput.value = date || this.formatDateForInput(new Date());
         document.getElementById('taskColor').value = '#3B82F6';
         
         modal.classList.remove('hidden');
