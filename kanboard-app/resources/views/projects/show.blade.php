@@ -10,6 +10,10 @@
                        class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('projects.show') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' }}">
                         Tableau Kanban
                     </a>
+                    <a href="{{ route('projects.list', $project) }}" 
+                       class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('projects.list') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' }}">
+                        Liste
+                    </a>
                     <a href="{{ route('projects.calendar', $project) }}" 
                        class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('projects.calendar') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' }}">
                         Calendrier

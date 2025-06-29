@@ -81,6 +81,52 @@ class ProjectController extends Controller
         return view('projects.calendar', compact('project', 'tasks', 'userInitials'));
     }
 
+    // Afficher la liste des tâches d'un projet
+    public function list($id)
+    {
+        $project = Project::findOrFail($id);
+        $userInitials = strtoupper(substr(auth()->user()->name, 0, 1));
+    
+        $this->authorize('view', $project);
+    
+        // Récupère toutes les tâches liées à ce projet avec possibilité de filtrage
+        $query = $project->tasks();
+        
+        // Filtrage par recherche
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('category', 'like', "%{$search}%");
+            });
+        }
+        
+        // Filtrage par colonne
+        if (request()->filled('column')) {
+            $query->where('column', request('column'));
+        }
+        
+        // Filtrage par catégorie
+        if (request()->filled('category')) {
+            $query->where('category', request('category'));
+        }
+        
+        // Tri
+        $sortBy = request('sort_by', 'created_at');
+        $sortOrder = request('sort_order', 'desc');
+        $query->orderBy($sortBy, $sortOrder);
+        
+        $tasks = $query->get();
+        
+        // Récupérer les catégories uniques pour le filtre
+        $categories = $project->tasks()->distinct()->pluck('category')->filter();
+        
+        // Récupérer les colonnes uniques pour le filtre
+        $columns = $project->tasks()->distinct()->pluck('column')->filter();
+    
+        return view('projects.list', compact('project', 'tasks', 'userInitials', 'categories', 'columns'));
+    }
+
     // Mettre à jour un projet
     public function update(Request $request, $id)
     {
