@@ -9,6 +9,10 @@
                    class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('projects.show') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' }}">
                     Tableau Kanban
                 </a>
+                <a href="{{ route('projects.calendar', $project) }}" 
+                   class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('projects.calendar') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' }}">
+                    Calendrier
+                </a>
                 <a href="{{ route('project.members.index', $project) }}" 
                    class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('project.members.*') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' }}">
                     Membres
@@ -62,6 +66,11 @@
                 <div class="form-group">
                     <label for="taskColor">Couleur du badge (code hex)</label>
                     <input type="color" id="taskColor" name="taskColor">
+                </div>
+
+                <div class="form-group">
+                    <label for="taskDate">Date d'échéance</label>
+                    <input type="date" id="taskDate" name="taskDate">
                 </div>
 
                 <input type="hidden" id="taskColumn" name="taskColumn">
