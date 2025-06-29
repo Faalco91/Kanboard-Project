@@ -40,6 +40,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Project routes
     Route::resource('projects', ProjectController::class);
+    Route::get('/projects/{project}/calendar', [ProjectController::class, 'calendar'])->name('projects.calendar');
     
     // Project members routes
     Route::prefix('projects/{project}/members')->group(function () {

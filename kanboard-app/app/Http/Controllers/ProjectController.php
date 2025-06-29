@@ -64,6 +64,20 @@ class ProjectController extends Controller
         return view('projects.show', compact('project', 'tasks', 'userInitials'));
     }
 
+    // Afficher le calendrier d'un projet
+    public function calendar($id)
+    {
+        $project = Project::findOrFail($id);
+        $userInitials = strtoupper(substr(auth()->user()->name, 0, 1));
+    
+        $this->authorize('view', $project);
+    
+        // Récupère toutes les tâches liées à ce projet
+        $tasks = $project->tasks()->get();
+    
+        return view('projects.calendar', compact('project', 'tasks', 'userInitials'));
+    }
+
     // Mettre à jour un projet
     public function update(Request $request, $id)
     {
