@@ -44,6 +44,105 @@ class Calendar {
                 }
             });
         }
+
+        // Initialiser le drag & drop après le rendu
+        this.initializeDragAndDrop();
+    }
+
+    initializeDragAndDrop() {
+        // Rendre les tâches draggables
+        const tasks = document.querySelectorAll('.calendar-task');
+        tasks.forEach(task => {
+            task.draggable = true;
+            task.addEventListener('dragstart', (e) => this.handleDragStart(e));
+            task.addEventListener('dragend', (e) => this.handleDragEnd(e));
+        });
+
+        // Rendre les zones de drop
+        const dropZones = document.querySelectorAll('.day-content, .week-day, .month-day');
+        dropZones.forEach(zone => {
+            zone.classList.add('drop-zone', 'clickable');
+            zone.addEventListener('dragover', (e) => this.handleDragOver(e));
+            zone.addEventListener('dragleave', (e) => this.handleDragLeave(e));
+            zone.addEventListener('drop', (e) => this.handleDrop(e));
+            zone.addEventListener('click', (e) => this.handleZoneClick(e));
+        });
+    }
+
+    handleDragStart(e) {
+        e.dataTransfer.setData('text/plain', e.target.dataset.taskId);
+        e.target.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+    }
+
+    handleDragEnd(e) {
+        e.target.classList.remove('dragging');
+        // Nettoyer les zones de drop
+        document.querySelectorAll('.drag-over').forEach(zone => {
+            zone.classList.remove('drag-over');
+        });
+    }
+
+    handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        e.currentTarget.classList.add('drag-over');
+    }
+
+    handleDragLeave(e) {
+        e.currentTarget.classList.remove('drag-over');
+    }
+
+    async handleDrop(e) {
+        e.preventDefault();
+        e.currentTarget.classList.remove('drag-over');
+        
+        const taskId = e.dataTransfer.getData('text/plain');
+        const newDate = e.currentTarget.dataset.date;
+        const newHour = e.currentTarget.dataset.hour;
+        
+        if (taskId && newDate) {
+            await this.moveTask(taskId, newDate, newHour);
+        }
+    }
+
+    handleZoneClick(e) {
+        // Éviter de déclencher si on clique sur une tâche
+        if (e.target.classList.contains('calendar-task')) {
+            return;
+        }
+        
+        const date = e.currentTarget.dataset.date;
+        const hour = e.currentTarget.dataset.hour;
+        this.openTaskModal(date, hour);
+    }
+
+    async moveTask(taskId, newDate, newHour) {
+        try {
+            const response = await fetch(`/tasks/${taskId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    due_date: newDate,
+                    hour: newHour
+                })
+            });
+            
+            if (response.ok) {
+                // Mettre à jour la tâche localement
+                const updatedTask = await response.json();
+                const taskIndex = tasks.findIndex(t => t.id == taskId);
+                if (taskIndex !== -1) {
+                    tasks[taskIndex] = updatedTask;
+                }
+                this.render();
+            }
+        } catch (error) {
+            console.error('Erreur lors du déplacement de la tâche:', error);
+        }
     }
 
     changeView(view) {
@@ -119,6 +218,9 @@ class Calendar {
                 this.renderMonthView();
                 break;
         }
+
+        // Réinitialiser le drag & drop après le rendu
+        this.initializeDragAndDrop();
     }
 
     updateHeader() {
@@ -253,6 +355,13 @@ class Calendar {
         return date.toDateString() === today.toDateString();
     }
 
+    formatDateForInput(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
     getTasksForDate(date) {
         const dateStr = this.formatDateForInput(date);
         
@@ -268,6 +377,7 @@ class Calendar {
         
         return dayTasks.slice(0, 3).map(task => `
             <div class="calendar-task ${this.getTaskClass(task.column)}" 
+                 data-task-id="${task.id}"
                  onclick="calendar.editTask(${task.id})">
                 ${task.title}
             </div>
@@ -287,6 +397,7 @@ class Calendar {
         
         return dayTasks.slice(0, 2).map(task => `
             <div class="calendar-task ${this.getTaskClass(task.column)}" 
+                 data-task-id="${task.id}"
                  onclick="calendar.editTask(${task.id})">
                 ${task.title}
             </div>
