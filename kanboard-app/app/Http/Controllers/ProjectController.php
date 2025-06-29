@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Services\ProjectService;
+use App\Services\ICalendarService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -13,10 +14,12 @@ class ProjectController extends Controller
     use AuthorizesRequests;
     
     protected $projectService;
+    protected $iCalendarService;
 
-    public function __construct(ProjectService $projectService)
+    public function __construct(ProjectService $projectService, ICalendarService $iCalendarService)
     {
         $this->projectService = $projectService;
+        $this->iCalendarService = $iCalendarService;
     }
 
     // Affiche tous les projets de l'utilisateur qui est connecté
@@ -99,5 +102,20 @@ class ProjectController extends Controller
 
         return redirect()->route('dashboard')
             ->with('success', 'Projet supprimé avec succès.');
+    }
+
+    // Exporter le projet au format iCalendar
+    public function exportICalendar($id)
+    {
+        $project = Project::findOrFail($id);
+        $this->authorize('view', $project);
+
+        $icalContent = $this->iCalendarService->generateICalendar($project);
+        
+        $filename = 'kanboard-' . $project->name . '-' . now()->format('Y-m-d') . '.ics';
+        
+        return response($icalContent)
+            ->header('Content-Type', 'text/calendar; charset=utf-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 }
