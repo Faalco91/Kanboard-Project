@@ -1,0 +1,637 @@
+/* Variables CSS pour la cohérence */
+:root {
+    --navbar-height: 4rem;
+    --sidebar-width: 16rem;
+    --container-padding: 1rem;
+    --border-radius: 0.5rem;
+    --transition-speed: 0.3s;
+}
+
+/* Reset et base responsive */
+* {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+    html {
+        font-size: 14px;
+    }
+}
+
+/* Container responsive */
+.container-responsive {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: var(--container-padding);
+    padding-right: var(--container-padding);
+}
+
+@media (min-width: 640px) {
+    .container-responsive {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .container-responsive {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
+
+/* Grid responsive pour Kanban */
+.kanban-board {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+    overflow-x: auto;
+    min-height: calc(100vh - var(--navbar-height) - 2rem);
+}
+
+@media (max-width: 768px) {
+    .kanban-board {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        padding: 0.5rem;
+    }
+}
+
+@media (min-width: 1200px) {
+    .kanban-board {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Colonnes Kanban responsive */
+.kanban-column {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.kanban-column-header {
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.kanban-column-body {
+    flex: 1;
+    padding: 0.5rem;
+    overflow-y: auto;
+    max-height: 70vh;
+}
+
+@media (max-width: 768px) {
+    .kanban-column-header {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .kanban-column-body {
+        max-height: 60vh;
+    }
+}
+
+/* Cards de tâches responsive */
+.task-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: all var(--transition-speed) ease;
+}
+
+    .task-card:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+@media (max-width: 480px) {
+    .task-card {
+        padding: 0.75rem;
+        font-size: 0.875rem;
+    }
+}
+
+/* Navigation responsive */
+.navbar-responsive {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+    height: var(--navbar-height);
+}
+
+.navbar-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    padding: 0 1rem;
+}
+
+.navbar-brand {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2937;
+    text-decoration: none;
+}
+
+.navbar-menu {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+@media (max-width: 768px) {
+    .navbar-menu {
+        position: fixed;
+        top: var(--navbar-height);
+        left: 0;
+        width: 100%;
+        height: calc(100vh - var(--navbar-height));
+        background: white;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding: 2rem 1rem;
+        transform: translateX(-100%);
+        transition: transform var(--transition-speed) ease;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+        .navbar-menu.open {
+            transform: translateX(0);
+        }
+
+    .navbar-toggle {
+        display: block;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+}
+
+@media (min-width: 769px) {
+    .navbar-toggle {
+        display: none;
+    }
+}
+
+/* Forms responsive */
+.form-responsive {
+    display: grid;
+    gap: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .form-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .form-row.triple {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.form-control {
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: border-color var(--transition-speed) ease;
+}
+
+    .form-control:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+@media (max-width: 480px) {
+    .form-control {
+        padding: 0.625rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Buttons responsive */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-speed) ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: #3b82f6;
+    color: white;
+}
+
+    .btn-primary:hover {
+        background: #2563eb;
+    }
+
+.btn-secondary {
+    background: #6b7280;
+    color: white;
+}
+
+    .btn-secondary:hover {
+        background: #4b5563;
+    }
+
+@media (max-width: 480px) {
+    .btn {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.9rem;
+        width: 100%;
+    }
+
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
+/* Tables responsive */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--border-radius);
+    border: 1px solid #e5e7eb;
+}
+
+.table {
+    width: 100%;
+    min-width: 600px;
+    border-collapse: collapse;
+}
+
+    .table th,
+    .table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .table th {
+        background: #f9fafb;
+        font-weight: 600;
+    }
+
+@media (max-width: 768px) {
+    .table th,
+    .table td {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+}
+
+/* Modal responsive */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 1rem;
+}
+
+.modal-content {
+    background: white;
+    border-radius: var(--border-radius);
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    width: 100%;
+}
+
+@media (min-width: 640px) {
+    .modal-content {
+        max-width: 640px;
+    }
+}
+
+@media (min-width: 768px) {
+    .modal-content {
+        max-width: 768px;
+    }
+}
+
+.modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    padding: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+@media (max-width: 480px) {
+    .modal-header,
+    .modal-body,
+    .modal-footer {
+        padding: 1rem;
+    }
+
+    .modal-footer {
+        flex-direction: column;
+    }
+}
+
+/* Calendar responsive */
+.calendar-responsive {
+    display: grid;
+    gap: 1px;
+    background: #e5e7eb;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.calendar-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    background: #f9fafb;
+}
+
+.calendar-header-cell {
+    padding: 1rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.calendar-body {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.calendar-day {
+    background: white;
+    min-height: 120px;
+    padding: 0.5rem;
+    overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    .calendar-header-cell {
+        padding: 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .calendar-day {
+        min-height: 80px;
+        padding: 0.25rem;
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .calendar-day {
+        min-height: 60px;
+    }
+}
+
+/* Sidebar responsive */
+.sidebar {
+    width: var(--sidebar-width);
+    height: calc(100vh - var(--navbar-height));
+    background: white;
+    border-right: 1px solid #e5e7eb;
+    transition: transform var(--transition-speed) ease;
+    position: fixed;
+    left: 0;
+    top: var(--navbar-height);
+    z-index: 30;
+}
+
+@media (max-width: 1024px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 25;
+        display: none;
+    }
+
+        .sidebar-overlay.show {
+            display: block;
+        }
+}
+
+@media (min-width: 1025px) {
+    .main-content {
+        margin-left: var(--sidebar-width);
+    }
+}
+
+/* Utility classes responsive */
+.text-responsive-xs {
+    font-size: 0.75rem;
+}
+
+.text-responsive-sm {
+    font-size: 0.875rem;
+}
+
+.text-responsive-base {
+    font-size: 1rem;
+}
+
+.text-responsive-lg {
+    font-size: 1.125rem;
+}
+
+.text-responsive-xl {
+    font-size: 1.25rem;
+}
+
+@media (max-width: 480px) {
+    .text-responsive-xs {
+        font-size: 0.625rem;
+    }
+
+    .text-responsive-sm {
+        font-size: 0.75rem;
+    }
+
+    .text-responsive-base {
+        font-size: 0.875rem;
+    }
+
+    .text-responsive-lg {
+        font-size: 1rem;
+    }
+
+    .text-responsive-xl {
+        font-size: 1.125rem;
+    }
+}
+
+/* Spacing responsive */
+.spacing-responsive {
+    padding: 1rem;
+}
+
+@media (max-width: 768px) {
+    .spacing-responsive {
+        padding: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .spacing-responsive {
+        padding: 0.5rem;
+    }
+}
+
+/* Hide/show utilities */
+.hide-mobile {
+    display: block;
+}
+
+.show-mobile {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .hide-mobile {
+        display: none;
+    }
+
+    .show-mobile {
+        display: block;
+    }
+}
+
+.hide-tablet {
+    display: block;
+}
+
+.show-tablet {
+    display: none;
+}
+
+@media (max-width: 1024px) {
+    .hide-tablet {
+        display: none;
+    }
+
+    .show-tablet {
+        display: block;
+    }
+}
+
+/* Touch improvements */
+@media (max-width: 768px) {
+    .touch-target {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    button, .btn, a[role="button"] {
+        min-height: 44px;
+        padding: 0.75rem 1rem;
+    }
+
+    .task-card {
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .kanban-column {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Print styles */
+@media print {
+    .navbar-responsive,
+    .sidebar,
+    .modal,
+    .btn,
+    .hide-print {
+        display: none !important;
+    }
+
+    .kanban-board {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        padding: 0;
+    }
+
+    .task-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+}

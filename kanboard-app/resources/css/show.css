@@ -5,15 +5,27 @@
     padding: 1rem;
 }
 
-/* Grille Kanban */
+/* ===== GRILLE KANBAN ===== */
 .grid-kanban {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1rem;
     padding: 2rem;
+    overflow-x: auto;
 }
 
-/* Colonnes */
+@media (max-width: 768px) {
+    .grid-kanban {
+        grid-template-columns: repeat(5, minmax(280px, 300px));
+        gap: 1rem;
+        padding: 1rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+    }
+}
+
+/* ===== COLONNES KANBAN ===== */
 .kanban-column-container {
     background-color: #f5f5f5;
     border-radius: 0.5rem;
@@ -22,6 +34,8 @@
     min-height: 500px;
     display: flex;
     flex-direction: column;
+    scroll-snap-align: start;
+    transition: all 0.3s ease;
 }
 
 .kanban-header {
@@ -29,107 +43,283 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e5e7eb;
 }
 
-.kanban-header h3 {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #374151;
-}
+    .kanban-header h3 {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #374151;
+    }
 
 .kanban-menu {
     color: #9CA3AF;
     cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
 }
+
+    .kanban-menu:hover {
+        background-color: #f3f4f6;
+        color: #6b7280;
+    }
 
 .kanban-column {
     flex: 1;
     overflow-y: auto;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    scroll-behavior: smooth;
 }
 
-/* Bouton ajouter une carte */
+/* ===== BOUTON AJOUTER UNE CARTE ===== */
 .add-task-btn {
     margin-top: 1rem;
+    padding: 0.75rem;
     font-size: 0.875rem;
     color: #6B7280;
     background: none;
-    border: none;
+    border: 1px dashed #d1d5db;
+    border-radius: 0.5rem;
     cursor: pointer;
-}
-.add-task-btn:hover {
-    color: #2563EB;
+    transition: all 0.2s ease;
+    text-align: center;
+    font-weight: 500;
 }
 
-/* Modal */
+    .add-task-btn:hover {
+        color: #2563EB;
+        border-color: #2563EB;
+        background-color: #f0f9ff;
+    }
+
+    .add-task-btn:focus {
+        outline: 2px solid #3b82f6;
+        outline-offset: 2px;
+    }
+
+/* ===== MODAL SYSTÈME ===== */
 .modal {
     position: fixed;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.4);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 50;
+    z-index: 1000;
+    padding: 1rem;
+    backdrop-filter: blur(4px);
 }
-.modal.hidden {
-    display: none;
-}
+
+    /* IMPORTANT: Règle forte pour cacher le modal */
+    .modal.hidden {
+        display: none !important;
+    }
 
 .modal-content {
     background-color: white;
-    border-radius: 0.5rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    border-radius: 0.75rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     width: 100%;
-    max-width: 28rem;
-    padding: 1.5rem;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
     position: relative;
+    animation: modalSlideIn 0.2s ease-out;
 }
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
 .modal-content h2 {
-    font-size: 1.125rem;
+    font-size: 1.25rem;
     font-weight: 600;
-    margin-bottom: 1rem;
+    margin: 0 0 1.5rem 0;
+    padding: 1.5rem 1.5rem 0 1.5rem;
+    color: #1f2937;
+}
+
+/* ===== FORMULAIRE DANS MODAL ===== */
+.modal form {
+    padding: 0 1.5rem 1.5rem 1.5rem;
 }
 
 .form-group {
-    margin-bottom: 1rem;
-}
-.form-group label {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #374151;
-    margin-bottom: 0.25rem;
-}
-.form-group input[type="text"],
-.form-group input[type="color"] {
-    width: 100%;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #D1D5DB;
-    border-radius: 0.375rem;
-    margin-top: 0.8rem;
+    margin-bottom: 1.5rem;
 }
 
-.form-group input[type="color"] {
-    height: 8rem;
-}
+    .form-group label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
 
-/* Boutons modal */
+    .form-group input[type="text"],
+    .form-group input[type="color"] {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #D1D5DB;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+        background-color: white;
+    }
+
+        .form-group input[type="text"]:focus,
+        .form-group input[type="color"]:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+    .form-group input[type="color"] {
+        height: 3rem;
+        padding: 0.25rem;
+        cursor: pointer;
+    }
+
+    .form-group input::placeholder {
+        color: #9ca3af;
+    }
+
+/* ===== BOUTONS MODAL ===== */
 .modal-buttons {
     display: flex;
     justify-content: flex-end;
-    gap: 0.5rem;
-    margin-top: 1.5rem;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
 }
-.modal-buttons button {
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
-    border: none;
-    cursor: pointer;
+
+    .modal-buttons button {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        border: none;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .modal-buttons button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+    .modal-buttons .cancel {
+        background-color: #f3f4f6;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+
+        .modal-buttons .cancel:hover:not(:disabled) {
+            background-color: #e5e7eb;
+        }
+
+    .modal-buttons .submit {
+        background-color: #3b82f6;
+        color: white;
+    }
+
+        .modal-buttons .submit:hover:not(:disabled) {
+            background-color: #2563eb;
+            transform: translateY(-1px);
+        }
+
+/* ===== RESPONSIVE MOBILE ===== */
+@media (max-width: 640px) {
+    .grid-kanban {
+        padding: 1rem;
+    }
+
+    .kanban-column-container {
+        padding: 0.75rem;
+    }
+
+    .modal {
+        padding: 0.5rem;
+    }
+
+    .modal-content {
+        max-width: calc(100% - 1rem);
+    }
+
+        .modal-content h2 {
+            padding: 1rem 1rem 0 1rem;
+            font-size: 1.125rem;
+        }
+
+    .modal form {
+        padding: 0 1rem 1rem 1rem;
+    }
+
+    .modal-buttons {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+        .modal-buttons button {
+            width: 100%;
+            justify-content: center;
+        }
 }
-.modal-buttons .cancel {
-    background-color: #D1D5DB;
-    color: black;
+
+/* ===== SCROLLBARS PERSONNALISÉES ===== */
+.kanban-column::-webkit-scrollbar {
+    width: 6px;
 }
-.modal-buttons .submit {
-    background-color: #2563EB;
-    color: white;
+
+.kanban-column::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.kanban-column::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+}
+
+    .kanban-column::-webkit-scrollbar-thumb:hover {
+        background: #9ca3af;
+    }
+
+/* ===== ÉTATS DE FOCUS POUR L'ACCESSIBILITÉ ===== */
+.add-task-btn:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.2s ease-out;
 }

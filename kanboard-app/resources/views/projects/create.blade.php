@@ -1,160 +1,106 @@
-<div id="create-project-modal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>{{ __('Créer un nouveau projet') }}</h2>
-            <span class="close">&times;</span>
+<x-app-layout>
+    <x-slot name="header">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
+                {{ __('Créer un nouveau projet') }}
+            </h2>
+            <a href="{{ route('projects.index') }}" 
+               class="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Retour aux projets
+            </a>
         </div>
-        <form id="create-project-form" method="POST" action="{{ route('projects.store') }}">
-            @csrf
-            <div class="form-group">
-                <label for="name">{{ __('Nom du projet') }}</label>
-                <input type="text" id="name" name="name" required class="form-control">
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6">
+                    <form method="POST" action="{{ route('projects.store') }}" class="space-y-6">
+                        @csrf
+
+                        {{-- Titre du projet --}}
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Nom du projet <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" 
+                                   name="name" 
+                                   id="name" 
+                                   value="{{ old('name') }}"
+                                   class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100"
+                                   placeholder="Ex: Site web de l'entreprise"
+                                   required>
+                            @error('name')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        {{-- Description --}}
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Description
+                            </label>
+                            <textarea name="description" 
+                                      id="description" 
+                                      rows="4"
+                                      class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100"
+                                      placeholder="Décrivez votre projet...">{{ old('description') }}</textarea>
+                            @error('description')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        {{-- Informations sur les colonnes par défaut --}}
+                        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-info-circle text-blue-400"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">
+                                        Colonnes par défaut
+                                    </h3>
+                                    <div class="mt-2 text-sm text-blue-700 dark:text-blue-300">
+                                        <p>Votre projet sera créé avec les colonnes suivantes :</p>
+                                        <ul class="list-disc list-inside mt-1 space-y-1">
+                                            <li>À faire</li>
+                                            <li>En cours</li>
+                                            <li>Fait</li>
+                                            <li>Annulé</li>
+                                        </ul>
+                                        <p class="mt-2">Vous pourrez les modifier plus tard selon vos besoins.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Boutons d'action --}}
+                        <div class="flex flex-col sm:flex-row gap-4 pt-6">
+                            <button type="submit" 
+                                    class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-md transition-colors duration-200 flex items-center justify-center">
+                                <i class="fas fa-plus mr-2"></i>
+                                Créer le projet
+                            </button>
+                            <a href="{{ route('projects.index') }}" 
+                               class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-6 rounded-md transition-colors duration-200 flex items-center justify-center text-center">
+                                <i class="fas fa-times mr-2"></i>
+                                Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="description">{{ __('Description') }}</label>
-                <textarea id="description" name="description" class="form-control"></textarea>
-            </div>
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">{{ __('Créer') }}</button>
-                <button type="button" class="btn btn-secondary close-modal">{{ __('Annuler') }}</button>
-            </div>
-        </form>
+        </div>
     </div>
-</div>
 
-<style>
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-}
-
-.modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 500px;
-    border-radius: 8px;
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.close {
-    color: #aaa;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.close:hover {
-    color: black;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-}
-
-.form-control {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.btn {
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.btn-primary {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-}
-
-.btn-secondary {
-    background-color: #f1f1f1;
-    border: 1px solid #ddd;
-}
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('create-project-modal');
-    const closeButtons = modal.querySelectorAll('.close, .close-modal');
-    const form = document.getElementById('create-project-form');
-
-    // Ouvrir le modal
-    window.openCreateProjectModal = function() {
-        modal.style.display = 'block';
-    }
-
-    // Fermer le modal
-    closeButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            modal.style.display = 'none';
-        });
-    });
-
-    // Fermer le modal en cliquant en dehors
-    window.addEventListener('click', (event) => {
-        if (event.target === modal) {
-            modal.style.display = 'none';
-        }
-    });
-
-    // Gérer la soumission du formulaire
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        try {
-            const response = await fetch(form.action, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify({
-                    name: form.name.value,
-                    description: form.description.value
-                })
-            });
-
-            if (response.ok) {
-                window.location.reload();
-            } else {
-                const data = await response.json();
-                alert(data.message || 'Une erreur est survenue');
+    @push('styles')
+    <style>
+        @media (max-width: 640px) {
+            .flex-1 {
+                width: 100%;
             }
-        } catch (error) {
-            console.error('Erreur:', error);
-            alert('Une erreur est survenue');
         }
-    });
-});
-</script> 
+    </style>
+    @endpush
+</x-app-layout>
