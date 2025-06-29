@@ -1,6 +1,10 @@
 import Sortable from 'sortablejs';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Vérifier si on est sur la page Kanban (pas calendrier)
+    const kanbanColumns = document.querySelectorAll('.kanban-column');
+    if (kanbanColumns.length === 0) return;
+    
     loadTasksFromServer();
 
     // Initialisation du drag & drop
@@ -41,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const taskTitle = document.getElementById('taskTitle');
     const taskCategory = document.getElementById('taskCategory');
     const taskColor = document.getElementById('taskColor');
+    const taskDate = document.getElementById('taskDate');
     const taskColumn = document.getElementById('taskColumn');
     const taskMode = document.getElementById('taskMode');
     const editTargetId = document.getElementById('editTargetId');
@@ -52,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
             taskTitle.value = '';
             taskCategory.value = '';
             taskColor.value = '#1e40af'; // Bleu par défaut
+            taskDate.value = '';
             taskColumn.value = btn.dataset.column;
             taskModal.classList.remove('hidden');
         });
@@ -77,14 +83,47 @@ document.addEventListener('DOMContentLoaded', () => {
         const title = taskTitle.value.trim();
         const category = taskCategory.value.trim();
         const color = taskColor.value;
+        const date = taskDate.value;
         const column = taskColumn.value;
     
         if (!title || !category || !column) return;
     
         // Mode création
         if (mode === 'create') {
+            const taskData = {
+                title: title,
+                category: category,
+                color: color,
+                due_date: date,
+                column: column,
+                project_id: projectId
+            };
+            
             fetch('/tasks', {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify(taskData)
+            })
+            .then(res => res.json())
+            .then(task => {
+                const li = generateTaskCard(task.title, task.category, task.color, task.id);
+                document.querySelector(`#column-${task.column.toLowerCase().replaceAll(' ', '-')}`).appendChild(li);
+                attachCardActions(li);
+                
+                // Ajouter la tâche au tableau global
+                tasks.push(task);
+            })
+            .catch(err => console.error('Erreur enregistrement tâche :', err));
+        }
+    
+        // Mode édition
+        else if (mode === 'edit') {
+            const taskId = editTargetId.value;
+            fetch(`/tasks/${taskId}`, {
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
@@ -93,27 +132,36 @@ document.addEventListener('DOMContentLoaded', () => {
                     title: title,
                     category: category,
                     color: color,
-                    column: column,
-                    project_id: projectId // ⚠️ variable JS contenant l'id du projet courant
+                    due_date: date,
+                    column: column
                 })
             })
-            .then(res => res.json())
-            .then(task => {
-                const li = generateTaskCard(task.title, task.category, task.color, task.id);
-                document.querySelector(`#column-${task.column.toLowerCase().replaceAll(' ', '-')}`).appendChild(li);
-                attachCardActions(li);
+            .then(res => {
+                if (!res.ok) throw new Error('Erreur serveur');
+                return res.json();
             })
-            .catch(err => console.error('Erreur enregistrement tâche :', err));
-        }
-    
-        // Mode édition
-        else if (mode === 'edit') {
-            const card = document.getElementById(editTargetId.value);
-            card.querySelector('.task-title').textContent = title;
-            const badge = card.querySelector('.task-badge');
-            badge.textContent = category;
-            badge.style.backgroundColor = color;
-            badge.style.color = '#fff';
+            .then(updatedTask => {
+                // Mettre à jour la carte visuellement
+                const card = document.getElementById(`task-${taskId}`);
+                if (card) {
+                    card.querySelector('.task-title').textContent = title;
+                    const badge = card.querySelector('.task-badge');
+                    badge.textContent = category;
+                    badge.style.backgroundColor = color;
+                    badge.style.color = '#fff';
+                } else {
+                    alert('Carte non trouvée dans le DOM !');
+                }
+                // Mettre à jour la tâche dans le tableau global
+                const taskIndex = tasks.findIndex(t => t.id == taskId);
+                if (taskIndex !== -1) {
+                    tasks[taskIndex] = updatedTask;
+                }
+            })
+            .catch(err => {
+                alert('Erreur lors de la mise à jour : ' + err.message);
+                console.error('Erreur mise à jour tâche :', err);
+            });
         }
     
         taskModal.classList.add('hidden');
@@ -132,11 +180,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
 
-    // Crér une tâche dans une des colonnes du kanban
+    // Créer une tâche dans une des colonnes du kanban
     function generateTaskCard(title, category, color, taskId) {
         const li = document.createElement('li');
-        const cardId = `card-${Date.now()}`;
-        li.id = cardId;
+        li.id = `task-${taskId}`;
         li.dataset.taskId = taskId;
         li.className = 'task-card';
         li.innerHTML = `
@@ -161,11 +208,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
         editBtn.addEventListener('click', () => {
             taskMode.value = 'edit';
-            editTargetId.value = card.id;
+            editTargetId.value = card.dataset.taskId;
 
             taskTitle.value = card.querySelector('.task-title').textContent.trim();
             taskCategory.value = card.querySelector('.task-badge').textContent.trim();
             taskColor.value = rgbToHex(card.querySelector('.task-badge').style.backgroundColor);
+            
+            // Récupérer la tâche pour obtenir la date
+            const taskId = card.dataset.taskId;
+            const task = tasks.find(t => t.id == taskId);
+            if (task && task.due_date) {
+                let d = new Date(task.due_date);
+                if (!isNaN(d)) {
+                    // Si c'est une vraie date JS
+                    taskDate.value = d.toISOString().split('T')[0];
+                } else if (/^\d{4}-\d{2}-\d{2}/.test(task.due_date)) {
+                    // Si c'est déjà au bon format
+                    taskDate.value = task.due_date;
+                } else {
+                    taskDate.value = '';
+                }
+            } else {
+                taskDate.value = '';
+            }
 
             taskModal.classList.remove('hidden');
         });

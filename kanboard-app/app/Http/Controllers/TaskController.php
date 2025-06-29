@@ -13,6 +13,7 @@ class TaskController extends Controller {
         'color' => 'nullable|string|max:255',
         'column' => 'required|string|max:255',
         'project_id' => 'required|exists:projects,id',
+        'due_date' => 'nullable|date',
     ]);
 
     $task = Task::create([
@@ -22,6 +23,7 @@ class TaskController extends Controller {
         'column' => $request->column,
         'project_id' => $request->project_id,
         'user_id' => auth()->id(),
+        'due_date' => $request->due_date,
     ]);
 
     return response()->json($task);
@@ -30,12 +32,14 @@ class TaskController extends Controller {
     public function update(Request $request, Task $task)
     {
         $request->validate([
-            'column' => 'required|string|max:255',
+            'title' => 'nullable|string|max:255',
+            'category' => 'nullable|string|max:255',
+            'color' => 'nullable|string|max:255',
+            'column' => 'nullable|string|max:255',
+            'due_date' => 'nullable|date',
         ]);
     
-        $task->update([
-            'column' => $request->column
-        ]);
+        $task->update($request->only(['title', 'category', 'color', 'column', 'due_date']));
     
         return response()->json($task);
     }
