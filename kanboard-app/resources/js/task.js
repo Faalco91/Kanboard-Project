@@ -15,6 +15,7 @@ if (isKanbanPage()) {
         const taskTitle = document.getElementById('taskTitle');
         const taskCategory = document.getElementById('taskCategory');
         const taskColor = document.getElementById('taskColor');
+        const taskDate = document.getElementById('taskDate');
         const taskColumn = document.getElementById('taskColumn');
         const taskMode = document.getElementById('taskMode');
         const editTargetId = document.getElementById('editTargetId');
@@ -49,6 +50,7 @@ if (isKanbanPage()) {
                 taskTitle.value = '';
                 taskCategory.value = '';
                 taskColor.value = '#3b82f6';
+                if (taskDate) taskDate.value = '';
                 taskColumn.value = btn.dataset.column;
                 taskModal.classList.remove('hidden');
             });
@@ -76,6 +78,7 @@ if (isKanbanPage()) {
             const title = taskTitle.value.trim();
             const category = taskCategory.value.trim();
             const color = taskColor.value;
+            const date = taskDate ? taskDate.value : '';
             const column = taskColumn.value;
 
             if (!title || !column) {
@@ -85,11 +88,11 @@ if (isKanbanPage()) {
 
             // Mode création
             if (mode === 'create') {
-                createTask(title, category, color, column);
+                createTask(title, category, color, column, date);
             }
             // Mode édition
             else if (mode === 'edit' && editTargetId) {
-                updateTask(editTargetId.value, title, category, color);
+                updateTask(editTargetId.value, title, category, color, date);
             }
 
             taskModal.classList.add('hidden');
@@ -121,8 +124,8 @@ function initializeDragDrop() {
     });
 }
 
-function createTask(title, category, color, column) {
-    console.log('📝 Création de tâche:', { title, category, color, column });
+function createTask(title, category, color, column, date = '') {
+    console.log('📝 Création de tâche:', { title, category, color, column, date });
 
     // Vérifier que projectId est défini
     if (typeof projectId === 'undefined') {
@@ -130,24 +133,33 @@ function createTask(title, category, color, column) {
         return;
     }
 
-    fetch('/api/tasks', {
+    const taskData = {
+        title: title,
+        category: category,
+        color: color,
+        column: column,
+        project_id: projectId
+    };
+
+    // Ajouter la date si elle existe
+    if (date) {
+        taskData.due_date = date;
+    }
+
+    fetch('/tasks', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
         },
-        body: JSON.stringify({
-            title: title,
-            category: category,
-            color: color,
-            column: column,
-            project_id: projectId
-        })
+        body: JSON.stringify(taskData)
     })
         .then(res => res.json())
-        .then(task => {
-            console.log('✅ Tâche créée:', task);
+        .then(response => {
+            console.log('✅ Tâche créée:', response);
 
+            const task = response.task || response;
+            
             // Ajouter la tâche visuellement
             const li = generateTaskCard(task.title, task.category, task.color, task.id);
             const columnEl = document.querySelector(`#column-${task.column.toLowerCase().replaceAll(' ', '-')}`);
@@ -155,6 +167,11 @@ function createTask(title, category, color, column) {
             if (columnEl) {
                 columnEl.appendChild(li);
                 attachCardActions(li);
+                
+                // Ajouter la tâche au tableau global
+                if (typeof tasks !== 'undefined' && Array.isArray(tasks)) {
+                    tasks.push(task);
+                }
             }
         })
         .catch(err => {
@@ -163,31 +180,69 @@ function createTask(title, category, color, column) {
         });
 }
 
-function updateTask(taskId, title, category, color) {
-    console.log('📝 Mise à jour de tâche:', { taskId, title, category, color });
+function updateTask(taskId, title, category, color, date = '') {
+    console.log('📝 Mise à jour de tâche:', { taskId, title, category, color, date });
 
-    const card = document.getElementById(taskId);
-    if (!card) return;
+    const updateData = {
+        title: title,
+        category: category,
+        color: color
+    };
 
-    // Mettre à jour visuellement
-    const titleEl = card.querySelector('.task-title');
-    const badge = card.querySelector('.task-badge');
-
-    if (titleEl) titleEl.textContent = title;
-    if (badge) {
-        badge.textContent = category;
-        badge.style.backgroundColor = color;
-        badge.style.color = '#fff';
+    // Ajouter la date si elle existe
+    if (date) {
+        updateData.due_date = date;
     }
 
-    // TODO: Envoyer au serveur
-    console.log('🔄 Mise à jour visuelle terminée');
+    fetch(`/tasks/${taskId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+        },
+        body: JSON.stringify(updateData)
+    })
+        .then(res => {
+            if (!res.ok) throw new Error('Erreur serveur');
+            return res.json();
+        })
+        .then(response => {
+            console.log('✅ Tâche mise à jour:', response);
+
+            const updatedTask = response.task || response;
+            
+            // Mettre à jour la carte visuellement
+            const card = document.querySelector(`[data-task-id="${taskId}"]`);
+            if (card) {
+                const titleEl = card.querySelector('.task-title');
+                const badge = card.querySelector('.task-badge');
+
+                if (titleEl) titleEl.textContent = title;
+                if (badge) {
+                    badge.textContent = category;
+                    badge.style.backgroundColor = color;
+                    badge.style.color = '#fff';
+                }
+
+                // Mettre à jour la tâche dans le tableau global
+                if (typeof tasks !== 'undefined' && Array.isArray(tasks)) {
+                    const taskIndex = tasks.findIndex(t => t.id == taskId);
+                    if (taskIndex !== -1) {
+                        tasks[taskIndex] = updatedTask;
+                    }
+                }
+            }
+        })
+        .catch(err => {
+            console.error('❌ Erreur mise à jour tâche:', err);
+            alert('Erreur lors de la mise à jour : ' + err.message);
+        });
 }
 
 function updateTaskColumn(taskId, newColumn) {
     console.log('🔄 Déplacement de tâche:', { taskId, newColumn });
 
-    fetch(`/api/tasks/${taskId}`, {
+    fetch(`/tasks/${taskId}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -235,6 +290,7 @@ function generateTaskCard(title, category, color, id) {
     const li = document.createElement('li');
     li.className = 'task-card';
     li.dataset.taskId = id;
+    li.id = `task-${id}`;
 
     let html = '';
 
@@ -271,20 +327,98 @@ function attachCardActions(cardElement) {
 // Fonctions globales pour les actions des cartes
 window.editTask = function (taskId) {
     console.log('✏️ Édition de tâche:', taskId);
-    // TODO: Implémenter l'édition
-    alert(`Édition de la tâche ${taskId} (à implémenter)`);
+
+    const taskModal = document.getElementById('taskModal');
+    const taskForm = document.getElementById('taskForm');
+    const taskTitle = document.getElementById('taskTitle');
+    const taskCategory = document.getElementById('taskCategory');
+    const taskColor = document.getElementById('taskColor');
+    const taskDate = document.getElementById('taskDate');
+    const taskMode = document.getElementById('taskMode');
+    const editTargetId = document.getElementById('editTargetId');
+
+    if (!taskModal || !taskForm) {
+        alert('Modal non disponible');
+        return;
+    }
+
+    const card = document.querySelector(`[data-task-id="${taskId}"]`);
+    if (!card) {
+        alert('Carte non trouvée');
+        return;
+    }
+
+    // Remplir le formulaire avec les données actuelles
+    taskMode.value = 'edit';
+    editTargetId.value = taskId;
+
+    taskTitle.value = card.querySelector('.task-title').textContent.trim();
+    taskCategory.value = card.querySelector('.task-badge')?.textContent.trim() || '';
+    taskColor.value = rgbToHex(card.querySelector('.task-badge')?.style.backgroundColor || '#6b7280');
+    
+    // Récupérer la date de la tâche
+    if (taskDate && typeof tasks !== 'undefined' && Array.isArray(tasks)) {
+        const task = tasks.find(t => t.id == taskId);
+        if (task && task.due_date) {
+            let d = new Date(task.due_date);
+            if (!isNaN(d)) {
+                taskDate.value = d.toISOString().split('T')[0];
+            } else if (/^\d{4}-\d{2}-\d{2}/.test(task.due_date)) {
+                taskDate.value = task.due_date;
+            } else {
+                taskDate.value = '';
+            }
+        } else {
+            taskDate.value = '';
+        }
+    }
+
+    // Ouvrir le modal
+    taskModal.classList.remove('hidden');
 };
 
 window.deleteTask = function (taskId) {
     console.log('🗑️ Suppression de tâche:', taskId);
 
     if (confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) {
-        const card = document.querySelector(`[data-task-id="${taskId}"]`);
-        if (card) {
-            card.remove();
-            console.log('✅ Tâche supprimée visuellement');
+        fetch(`/tasks/${taskId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+            }
+        })
+            .then(res => res.json())
+            .then(data => {
+                console.log('✅ Tâche supprimée:', data);
+                
+                // Supprimer visuellement
+                const card = document.querySelector(`[data-task-id="${taskId}"]`);
+                if (card) {
+                    card.remove();
+                }
 
-            // TODO: Supprimer du serveur
-        }
+                // Supprimer du tableau global
+                if (typeof tasks !== 'undefined' && Array.isArray(tasks)) {
+                    const taskIndex = tasks.findIndex(t => t.id == taskId);
+                    if (taskIndex !== -1) {
+                        tasks.splice(taskIndex, 1);
+                    }
+                }
+            })
+            .catch(err => {
+                console.error('❌ Erreur suppression tâche:', err);
+                alert('Erreur lors de la suppression');
+            });
     }
 };
+
+// Fonction utilitaire pour convertir RGB en HEX
+function rgbToHex(rgb) {
+    if (!rgb || rgb === 'transparent') return '#6b7280';
+    
+    const result = rgb.match(/\d+/g);
+    if (!result) return '#6b7280';
+    
+    const [r, g, b] = result;
+    return "#" + ((1 << 24) + (parseInt(r) << 16) + (parseInt(g) << 8) + parseInt(b)).toString(16).slice(1);
+}

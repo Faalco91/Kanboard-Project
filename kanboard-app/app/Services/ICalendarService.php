@@ -37,10 +37,14 @@ class ICalendarService
         $event .= "UID:" . $task->id . "@kanboard.local\r\n";
         $event .= "DTSTAMP:" . $created->format('Ymd\THis\Z') . "\r\n";
         $event .= "DTSTART:" . $dueDate->format('Ymd\THis\Z') . "\r\n";
-        $event .= "DTEND:" . $dueDate->addHour()->format('Ymd\THis\Z') . "\r\n";
+        $event .= "DTEND:" . $dueDate->copy()->addHour()->format('Ymd\THis\Z') . "\r\n";
         $event .= "SUMMARY:" . $this->escapeText($task->title) . "\r\n";
         $event .= "DESCRIPTION:" . $this->escapeText($task->description ?? '') . "\r\n";
-        $event .= "STATUS:" . strtoupper($task->status) . "\r\n";
+        
+        // Gérer le statut selon la colonne
+        $status = $this->getStatusFromColumn($task->column);
+        $event .= "STATUS:" . $status . "\r\n";
+        
         $event .= "PRIORITY:" . $this->getPriority($task->priority ?? null) . "\r\n";
         $event .= "LAST-MODIFIED:" . $updated->format('Ymd\THis\Z') . "\r\n";
         $event .= "END:VEVENT\r\n";
@@ -68,4 +72,31 @@ class ICalendarService
             default => 5
         };
     }
-} 
+    
+    private function getStatusFromColumn(string $column): string
+    {
+        return match(strtolower($column)) {
+            'done', 'fait', 'terminé' => 'COMPLETED',
+            'in progress', 'en cours' => 'IN-PROCESS',
+            'cancelled', 'annulé' => 'CANCELLED',
+            default => 'NEEDS-ACTION'
+        };
+    }
+    
+    public function getICalHeaders(string $filename = 'calendar.ics'): array
+    {
+        return [
+            'Content-Type' => 'text/calendar; charset=utf-8',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => '0'
+        ];
+    }
+    
+    public function generateFilename(Project $project): string
+    {
+        $safeName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $project->name);
+        return strtolower($safeName) . '_calendar.ics';
+    }
+}
