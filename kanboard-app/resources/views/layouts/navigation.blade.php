@@ -17,11 +17,6 @@
                         <i class="fas fa-tachometer-alt mr-2"></i>
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    
-                    <x-nav-link :href="route('projects.index')" :active="request()->routeIs('projects.*')">
-                        <i class="fas fa-folder mr-2"></i>
-                        {{ __('Projets') }}
-                    </x-nav-link>
                 </div>
             </div>
 

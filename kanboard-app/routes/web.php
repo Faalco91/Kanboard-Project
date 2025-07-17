@@ -58,6 +58,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // ===== PROJECT ROUTES =====
     Route::resource('projects', ProjectController::class);
+    Route::get('/projects/{project}/calendar', [ProjectController::class, 'calendar'])->name('projects.calendar');
+    Route::get('/projects/{project}/list', [ProjectController::class, 'list'])->name('projects.list');
+    Route::get('/projects/{project}/export-ical', [ProjectController::class, 'exportICalendar'])->name('projects.export-ical');
     
     // Project members routes
     Route::prefix('projects/{project}')->name('project.')->group(function () {
