@@ -4,7 +4,6 @@ namespace Tests\Feature\Auth;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Livewire\Volt\Volt;
 use Tests\TestCase;
 
 class PasswordConfirmationTest extends TestCase
@@ -24,27 +23,22 @@ class PasswordConfirmationTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->actingAs($user);
+        $response = $this->actingAs($user)->post('/confirm-password', [
+            'password' => 'password',
+        ]);
 
-        $response = Volt::test('auth.confirm-password')
-            ->set('password', 'password')
-            ->call('confirmPassword');
-
-        $response
-            ->assertHasNoErrors()
-            ->assertRedirect(route('dashboard', absolute: false));
+        $response->assertRedirect();
+        $response->assertSessionHasNoErrors();
     }
 
     public function test_password_is_not_confirmed_with_invalid_password(): void
     {
         $user = User::factory()->create();
 
-        $this->actingAs($user);
+        $response = $this->actingAs($user)->post('/confirm-password', [
+            'password' => 'wrong-password',
+        ]);
 
-        $response = Volt::test('auth.confirm-password')
-            ->set('password', 'wrong-password')
-            ->call('confirmPassword');
-
-        $response->assertHasErrors(['password']);
+        $response->assertSessionHasErrors();
     }
 }

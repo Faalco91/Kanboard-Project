@@ -89,12 +89,13 @@ return [
     | quickly generating a very large amount of password reset tokens.
     |
     */
-
+    
+// Lien de réinitialisation de mot de passe valide pendant 5 minutes 
     'passwords' => [
         'users' => [
             'provider' => 'users',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
-            'expire' => 60,
+            'expire' => 5,
             'throttle' => 60,
         ],
     ],

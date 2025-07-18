@@ -1,0 +1,135 @@
+.page-title {
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: #1F2937;
+    padding: 1rem;
+}
+
+/* Grille Kanban */
+.grid-kanban {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
+    padding: 2rem;
+}
+
+/* Colonnes */
+.kanban-column-container {
+    background-color: #f5f5f5;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: 1rem;
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+.kanban-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.kanban-header h3 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.kanban-menu {
+    color: #9CA3AF;
+    cursor: pointer;
+}
+
+.kanban-column {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Bouton ajouter une carte */
+.add-task-btn {
+    margin-top: 1rem;
+    font-size: 0.875rem;
+    color: #6B7280;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+.add-task-btn:hover {
+    color: #2563EB;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    width: 100%;
+    max-width: 28rem;
+    padding: 1.5rem;
+    position: relative;
+}
+.modal-content h2 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+.form-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.25rem;
+}
+.form-group input[type="text"],
+.form-group input[type="color"] {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #D1D5DB;
+    border-radius: 0.375rem;
+    margin-top: 0.8rem;
+}
+
+.form-group input[type="color"] {
+    height: 8rem;
+}
+
+/* Boutons modal */
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+}
+.modal-buttons button {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+}
+.modal-buttons .cancel {
+    background-color: #D1D5DB;
+    color: black;
+}
+.modal-buttons .submit {
+    background-color: #2563EB;
+    color: white;
+}
