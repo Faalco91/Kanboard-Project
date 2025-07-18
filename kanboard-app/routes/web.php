@@ -58,9 +58,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // ===== PROJECT ROUTES =====
     Route::resource('projects', ProjectController::class);
-    Route::get('/projects/{project}/calendar', [ProjectController::class, 'calendar'])->name('projects.calendar');
-    Route::get('/projects/{project}/list', [ProjectController::class, 'list'])->name('projects.list');
-    Route::get('/projects/{project}/export-ical', [ProjectController::class, 'exportICalendar'])->name('projects.export-ical');
+    
+    // Routes pour les vues additionnelles des projets
+    Route::get('/projects/{project}/list', [ProjectController::class, 'listView'])->name('projects.list');
+    Route::get('/projects/{project}/calendar', [ProjectController::class, 'calendarView'])->name('projects.calendar');
+    Route::get('/projects/{project}/stats', [ProjectController::class, 'stats'])->name('projects.stats');
+    Route::get('/projects/{project}/export-ical', [ProjectController::class, 'exportIcal'])->name('projects.export-ical');
+    Route::get('/projects/{project}/sync', [ProjectController::class, 'syncData'])->name('projects.sync');
     
     // Project members routes
     Route::prefix('projects/{project}')->name('project.')->group(function () {
@@ -85,8 +89,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // ===== TASK ROUTES =====
     Route::prefix('tasks')->name('tasks.')->group(function () {
         Route::post('/', [TaskController::class, 'store'])->name('store');
+        Route::get('/{task}/data', [TaskController::class, 'show'])->name('data');
         Route::put('/{task}', [TaskController::class, 'update'])->name('update');
         Route::delete('/{task}', [TaskController::class, 'destroy'])->name('destroy');
+        Route::put('/{task}/status', [TaskController::class, 'updateStatus'])->name('update-status');
     });
 });
 

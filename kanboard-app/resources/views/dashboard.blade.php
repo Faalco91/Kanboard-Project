@@ -1,257 +1,278 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                {{ __('Tableau de bord') }}
-            </h2>
+            <div>
+                <h2 class="text-2xl font-bold leading-tight text-gray-800 dark:text-gray-200">
+                    {{ __('Tableau de bord') }}
+                </h2>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    Bienvenue, {{ auth()->user()->name }} 👋
+                </p>
+            </div>
             
-            {{-- Bouton responsive qui va vers la page de création --}}
+            {{-- Bouton de création --}}
             <a href="{{ route('projects.create') }}" 
-               class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-lg shadow-sm transition-all duration-200 hover:shadow-md w-full sm:w-auto justify-center">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
+               class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 w-full sm:w-auto justify-center focus-ring">
+                <i class="fas fa-plus"></i>
                 {{ __('Nouveau Projet') }}
             </a>
         </div>
     </x-slot>
 
-    <div class="py-6 sm:py-12">
+    @push('styles')
+        <style>
+            .stats-card {
+                @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700;
+                @apply p-6 transition-all duration-200 hover:shadow-md hover:scale-105;
+            }
+            
+            .project-card {
+                @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700;
+                @apply overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105;
+                @apply group cursor-pointer;
+            }
+            
+            .gradient-bg {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+            
+            .fade-in {
+                animation: fadeIn 0.6s ease-in-out;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        </style>
+    @endpush
+
+    <div class="py-6 sm:py-12 fade-in">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
-            {{-- Statistiques en cards responsive --}}
+            {{-- Statistiques en cards --}}
             @if(!$projects->isEmpty())
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
                     {{-- Total projets --}}
-                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg">
-                        <div class="p-4 sm:p-6">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0">
-                                    <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path>
-                                        </svg>
-                                    </div>
+                    <div class="stats-card">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-folder text-white text-lg"></i>
                                 </div>
-                                <div class="ml-3 sm:ml-4">
-                                    <dt class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
-                                        Projets
-                                    </dt>
-                                    <dd class="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
-                                        {{ $projects->count() }}
-                                    </dd>
-                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $projects->count() }}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ $projects->count() > 1 ? 'Projets' : 'Projet' }}</div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Mes projets --}}
-                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg">
-                        <div class="p-4 sm:p-6">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0">
-                                    <div class="w-8 h-8 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-yellow-600 dark:text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
-                                        </svg>
-                                    </div>
+                    {{-- Projets où je suis propriétaire --}}
+                    <div class="stats-card">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-crown text-white text-lg"></i>
                                 </div>
-                                <div class="ml-3 sm:ml-4">
-                                    <dt class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
-                                        Mes projets
-                                    </dt>
-                                    <dd class="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
-                                        {{ $projects->where('user_id', Auth::id())->count() }}
-                                    </dd>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                    {{ $projects->where('user_id', auth()->id())->count() }}
                                 </div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Propriétaire</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Projets où je suis membre --}}
+                    <div class="stats-card">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-users text-white text-lg"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                    {{ $projects->where('user_id', '!=', auth()->id())->count() }}
+                                </div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Membre</div>
                             </div>
                         </div>
                     </div>
 
                     {{-- Total tâches --}}
-                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg">
-                        <div class="p-4 sm:p-6">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0">
-                                    <div class="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div class="ml-3 sm:ml-4">
-                                    <dt class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
-                                        Tâches
-                                    </dt>
-                                    <dd class="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
-                                        {{ $projects->sum('tasks_count') }}
-                                    </dd>
+                    <div class="stats-card">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-tasks text-white text-lg"></i>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    {{-- Collaborations --}}
-                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg">
-                        <div class="p-4 sm:p-6">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0">
-                                    <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
-                                        </svg>
-                                    </div>
+                            <div class="ml-4">
+                                <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                    {{ $projects->sum('tasks_count') ?? 0 }}
                                 </div>
-                                <div class="ml-3 sm:ml-4">
-                                    <dt class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
-                                        Collaborations
-                                    </dt>
-                                    <dd class="text-lg sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
-                                        {{ $projects->where('user_id', '!=', Auth::id())->count() }}
-                                    </dd>
-                                </div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Tâches</div>
                             </div>
                         </div>
                     </div>
                 </div>
             @endif
 
-            {{-- Section principale des projets --}}
-            @if($projects->isEmpty())
-                {{-- État vide responsive --}}
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg">
-                    <div class="p-8 sm:p-12 text-center">
-                        <div class="mx-auto w-16 h-16 sm:w-24 sm:h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4 sm:mb-6">
-                            <svg class="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg sm:text-xl font-medium text-gray-900 dark:text-gray-100 mb-2">
-                            Bienvenue sur Kanboard !
+            {{-- Section des projets --}}
+            <div class="mb-8">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                            {{ $projects->isEmpty() ? 'Créez votre premier projet' : 'Mes projets récents' }}
                         </h3>
-                        <p class="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                            {{ __("Vous n'avez pas encore de projets. Créez votre premier projet pour commencer à organiser vos tâches.") }}
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            {{ $projects->isEmpty() ? 'Commencez à organiser vos idées avec Kanboard' : 'Accédez rapidement à vos projets favoris' }}
                         </p>
-                        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
-                            <a href="{{ route('projects.create') }}" 
-                               class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                </svg>
-                                Créer mon premier projet
-                            </a>
-                            <a href="#demo" 
-                               class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition-colors duration-200">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.01M15 10h1.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                Voir la démo
-                            </a>
-                        </div>
                     </div>
-                </div>
-            @else
-                {{-- En-tête des projets --}}
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-                    <h3 class="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">
-                        Mes projets récents
-                    </h3>
+                    
+                    @if(!$projects->isEmpty())
+                        <a href="{{ route('projects.index') }}" 
+                           class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium text-sm flex items-center gap-2 transition-colors">
+                            Voir tous les projets
+                            <i class="fas fa-arrow-right text-xs"></i>
+                        </a>
+                    @endif
                 </div>
 
-                {{-- Grid des projets responsive --}}
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                    @foreach($projects->take(6) as $project)
-                        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg hover:shadow-md transition-all duration-200 hover:-translate-y-1">
-                            <a href="{{ route('projects.show', $project->id) }}" class="block h-full">
-                                <div class="p-4 sm:p-6 h-full flex flex-col">
+                @if($projects->isEmpty())
+                    {{-- État vide --}}
+                    <div class="text-center py-12">
+                        <div class="mx-auto w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-6">
+                            <i class="fas fa-rocket text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                            Prêt à commencer ?
+                        </h3>
+                        <p class="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                            Créez votre premier projet et commencez à organiser vos tâches avec la méthode Kanban.
+                        </p>
+                        <a href="{{ route('projects.create') }}" 
+                           class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 focus-ring">
+                            <i class="fas fa-plus"></i>
+                            Créer mon premier projet
+                        </a>
+                    </div>
+                @else
+                    {{-- Grid des projets --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @foreach($projects->take(6) as $project)
+                            <a href="{{ route('projects.show', $project->id) }}" class="project-card">
+                                <div class="p-6">
                                     {{-- En-tête du projet --}}
-                                    <div class="flex justify-between items-start mb-3">
-                                        <h4 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-gray-100 truncate pr-2">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
                                             {{ $project->name }}
                                         </h4>
-                                        <span class="text-xs px-2 py-1 rounded-full flex-shrink-0 {{ $project->user_id === Auth::id() ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' }}">
-                                            {{ $project->user_id === Auth::id() ? 'Propriétaire' : 'Membre' }}
-                                        </span>
+                                        <div class="flex-shrink-0 ml-2">
+                                            @if($project->user_id === auth()->id())
+                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                                    <i class="fas fa-crown mr-1"></i>
+                                                    Propriétaire
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                                    <i class="fas fa-user mr-1"></i>
+                                                    Membre
+                                                </span>
+                                            @endif
+                                        </div>
                                     </div>
 
                                     {{-- Description --}}
-                                    <div class="flex-1 mb-4">
-                                        <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                                            {{ Str::limit($project->description ?? 'Aucune description', 100) }}
+                                    <div class="mb-4">
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-3">
+                                            {{ $project->description ? Str::limit($project->description, 120) : 'Aucune description disponible' }}
                                         </p>
                                     </div>
 
                                     {{-- Métadonnées --}}
-                                    <div class="flex justify-between items-center text-xs sm:text-sm text-gray-500 dark:text-gray-400 pt-3 border-t border-gray-100 dark:border-gray-700">
+                                    <div class="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 pt-4 border-t border-gray-100 dark:border-gray-700">
                                         <div class="flex items-center">
-                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                                            </svg>
+                                            <i class="fas fa-tasks mr-1"></i>
                                             <span>{{ $project->tasks_count ?? 0 }} tâches</span>
                                         </div>
                                         <div class="flex items-center">
-                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
-                                            <span class="hidden sm:inline">{{ $project->updated_at->diffForHumans() }}</span>
-                                            <span class="sm:hidden">{{ $project->updated_at->format('d/m') }}</span>
+                                            <i class="fas fa-calendar mr-1"></i>
+                                            <span>{{ $project->created_at->diffForHumans() }}</span>
                                         </div>
                                     </div>
                                 </div>
+                                
+                                {{-- Barre de progression (optionnelle) --}}
+                                @if(isset($project->tasks_count) && $project->tasks_count > 0)
+                                    <div class="px-6 pb-4">
+                                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                            <div class="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full" 
+                                                 style="width: {{ rand(20, 80) }}%"></div>
+                                        </div>
+                                        <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                            <span>Progression</span>
+                                            <span>{{ rand(20, 80) }}%</span>
+                                        </div>
+                                    </div>
+                                @endif
+                            </a>
+                        @endforeach
+
+                        {{-- Carte d'ajout de projet --}}
+                        <a href="{{ route('projects.create') }}" 
+                           class="project-card border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-400 bg-gray-50 dark:bg-gray-800/50">
+                            <div class="p-6 text-center">
+                                <div class="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-100 dark:group-hover:bg-blue-900 transition-colors">
+                                    <i class="fas fa-plus text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 text-lg transition-colors"></i>
+                                </div>
+                                <h4 class="text-lg font-semibold text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                    Nouveau projet
+                                </h4>
+                                <p class="text-sm text-gray-500 dark:text-gray-500 mt-2">
+                                    Créer un nouveau projet Kanban
+                                </p>
+                            </div>
+                        </a>
+                    </div>
+
+                    {{-- Voir plus de projets --}}
+                    @if($projects->count() > 6)
+                        <div class="text-center mt-8">
+                            <a href="{{ route('projects.index') }}" 
+                               class="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium transition-colors">
+                                Voir {{ $projects->count() - 6 }} autres projets
+                                <i class="fas fa-arrow-right text-sm"></i>
                             </a>
                         </div>
-                    @endforeach
+                    @endif
+                @endif
+            </div>
+
+            {{-- Section d'aide rapide --}}
+            <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-6 border border-blue-200 dark:border-gray-600">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="text-center sm:text-left">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                            <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                            Conseil du jour
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-400">
+                            Utilisez les colonnes pour organiser vos tâches : "À faire", "En cours", "Terminé"
+                        </p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <a href="#" 
+                           class="inline-flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium py-2 px-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-600 transition-colors">
+                            <i class="fas fa-question-circle"></i>
+                            Aide
+                        </a>
+                    </div>
                 </div>
-            @endif
+            </div>
         </div>
     </div>
-
-    @push('styles')
-    <style>
-        /* Truncate text avec ellipsis */
-        .line-clamp-2 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        
-        /* Transitions fluides */
-        .transition-all {
-            transition-property: all;
-            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-            transition-duration: 200ms;
-        }
-        
-        /* Hover effects améliorés */
-        .hover\:-translate-y-1:hover {
-            transform: translateY(-0.25rem);
-        }
-        
-        /* Mobile-first responsive adjustments */
-        @media (max-width: 640px) {
-            /* Réduire l'espacement sur mobile */
-            .py-6 {
-                padding-top: 1rem;
-                padding-bottom: 1rem;
-            }
-            
-            /* Cards plus compactes sur mobile */
-            .grid > div {
-                min-height: auto;
-            }
-        }
-        
-        /* Améliorations pour le dark mode */
-        @media (prefers-color-scheme: dark) {
-            .shadow-sm {
-                box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-            }
-            
-            .hover\:shadow-md:hover {
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
-            }
-        }
-    </style>
-    @endpush
 </x-app-layout>

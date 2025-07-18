@@ -2,25 +2,23 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Project extends Model
 {
-    use HasFactory; 
-    // fillable permet de définir les champs qui peuvent être remplis en masse et ainsi protéger les autres champs de la table 
-    protected $fillable = ['name', 'description', 'user_id'];
+    use HasFactory;
+    
+    protected $fillable = [
+        'name',
+        'description',
+        'user_id',
+    ];
 
+    // Relations
     public function user()
     {
-        // belongsTo est une méthode qui permet de liée un projet à un user 
-        // On peut accéder à l'utilisateur propriétaire d'un projet via $project->user
         return $this->belongsTo(User::class);
-    }
-    
-    public function tasks()
-    {
-        return $this->hasMany(Task::class);
     }
 
     public function members()
@@ -29,7 +27,13 @@ class Project extends Model
                     ->withPivot('role', 'status', 'invitation_sent_at', 'invitation_accepted_at')
                     ->withTimestamps();
     }
-    
+
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
+
+    // Méthodes pour la gestion des membres
     public function pendingMembers()
     {
         return $this->members()->wherePivot('status', 'pending');
@@ -38,5 +42,40 @@ class Project extends Model
     public function acceptedMembers()
     {
         return $this->members()->wherePivot('status', 'accepted');
+    }
+
+    /**
+     * Vérifier si un utilisateur est membre du projet
+     */
+    public function hasMember(User $user): bool
+    {
+        // Vérifier si l'utilisateur est le propriétaire du projet
+        if ($this->user_id === $user->id) {
+            return true;
+        }
+
+        // Vérifier si l'utilisateur est membre avec statut accepté
+        return $this->members()
+                    ->where('user_id', $user->id)
+                    ->where('status', 'accepted')
+                    ->exists();
+    }
+
+    /**
+     * Vérifier si un utilisateur peut gérer le projet
+     */
+    public function canManage(User $user): bool
+    {
+        // Le propriétaire peut toujours gérer
+        if ($this->user_id === $user->id) {
+            return true;
+        }
+
+        // Les administrateurs peuvent gérer
+        return $this->members()
+                    ->where('user_id', $user->id)
+                    ->where('status', 'accepted')
+                    ->whereIn('role', ['admin', 'owner'])
+                    ->exists();
     }
 }

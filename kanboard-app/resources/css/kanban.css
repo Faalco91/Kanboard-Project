@@ -501,17 +501,234 @@
     animation: taskSlideIn 0.3s ease-out;
 }
 
-/* ===== DRAG AND DROP (pour plus tard) ===== */
-.kanban-task.dragging {
-    opacity: 0.5;
+/* ===== DRAG AND DROP STYLES ===== */
+
+/* État pendant le drag */
+.task-ghost {
+    opacity: 0.4;
+    background: #f3f4f6;
+    border: 2px dashed #9ca3af;
     transform: rotate(2deg);
 }
 
-.kanban-column.drag-over {
-    background: #f0f9ff;
-    border-color: #3b82f6;
+.task-chosen {
+    cursor: grabbing;
+    transform: scale(1.05);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
 }
 
-.dark .kanban-column.drag-over {
-    background: #1e3a8a;
+.task-drag {
+    opacity: 0.8;
+    transform: rotate(5deg);
 }
+
+.task-fallback {
+    opacity: 0.6;
+}
+
+/* État des colonnes pendant le drag */
+.kanban-column.sortable-ghost {
+    background: #f0f9ff;
+    border: 2px dashed #3b82f6;
+}
+
+.dark .kanban-column.sortable-ghost {
+    background: #1e3a8a;
+    border-color: #60a5fa;
+}
+
+/* État global pendant le drag */
+.is-dragging {
+    cursor: grabbing;
+}
+
+    .is-dragging .kanban-column {
+        transition: all 0.3s ease;
+    }
+
+        .is-dragging .kanban-column:hover {
+            background: #f8fafc;
+            border-color: #3b82f6;
+        }
+
+.dark.is-dragging .kanban-column:hover {
+    background: #1e293b;
+    border-color: #60a5fa;
+}
+
+/* Animation d'entrée pour les nouvelles tâches */
+@keyframes taskSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.task-enter {
+    animation: taskSlideIn 0.3s ease-out;
+}
+
+/* Curseurs */
+.kanban-task {
+    cursor: grab;
+}
+
+    .kanban-task:active {
+        cursor: grabbing;
+    }
+
+    .kanban-task.dragging {
+        cursor: grabbing;
+        opacity: 0.6;
+        transform: rotate(3deg) scale(1.02);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        z-index: 999;
+    }
+
+/* Indicateurs visuels pour les zones de drop */
+.kanban-column-body {
+    min-height: 100px;
+    transition: all 0.2s ease;
+}
+
+    .kanban-column-body.sortable-over {
+        background: #f0f9ff;
+        border-radius: 0.5rem;
+        border: 2px dashed #3b82f6;
+    }
+
+.dark .kanban-column-body.sortable-over {
+    background: #1e3a8a;
+    border-color: #60a5fa;
+}
+
+/* Amélioration des tâches pour le drag & drop */
+.kanban-task {
+    position: relative;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+    .kanban-task::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, transparent 0%, rgba(59, 130, 246, 0.05) 100%);
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        border-radius: inherit;
+        pointer-events: none;
+    }
+
+    .kanban-task:hover::before {
+        opacity: 1;
+    }
+
+    /* Indicateur de déplacement */
+    .kanban-task .drag-handle {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        color: #9ca3af;
+        cursor: grab;
+        font-size: 0.875rem;
+    }
+
+    .kanban-task:hover .drag-handle {
+        opacity: 1;
+    }
+
+    .kanban-task .drag-handle:active {
+        cursor: grabbing;
+    }
+
+/* Responsive - Améliorer le drag sur mobile */
+@media (max-width: 768px) {
+    .kanban-task {
+        touch-action: manipulation;
+    }
+
+    .task-chosen {
+        transform: scale(1.02);
+    }
+
+    .kanban-task.dragging {
+        transform: scale(1.05);
+    }
+}
+
+/* Accessibilité - Focus states */
+.kanban-task:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+    .kanban-task:focus .drag-handle {
+        opacity: 1;
+    }
+
+/* Animation de feedback pour les actions */
+@keyframes taskUpdated {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.task-updated {
+    animation: taskUpdated 0.3s ease-in-out;
+}
+
+/* Styles pour les états de drag avancés */
+.sortable-fallback {
+    display: block !important;
+    opacity: 0.8;
+    transform: rotate(2deg);
+    cursor: grabbing;
+}
+
+.sortable-drag {
+    opacity: 0.9;
+    transform: rotate(1deg);
+}
+
+/* Amélioration visuelle des colonnes pendant le drag */
+.kanban-column {
+    position: relative;
+}
+
+    .kanban-column::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(59, 130, 246, 0.05);
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        border-radius: inherit;
+        pointer-events: none;
+    }
+
+    .kanban-column.sortable-over::after {
+        opacity: 1;
+    }
