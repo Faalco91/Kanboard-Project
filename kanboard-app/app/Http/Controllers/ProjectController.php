@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\Task;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ProjectController extends Controller
 {
@@ -13,16 +16,15 @@ class ProjectController extends Controller
     {
         $user = Auth::user();
         
-        // Récupérer les projets où l'utilisateur est propriétaire ou membre
         $projects = Project::where('user_id', $user->id)
             ->orWhereHas('members', function($query) use ($user) {
                 $query->where('user_id', $user->id)
                       ->where('status', 'accepted');
             })
-            ->withCount(['tasks', 'members'])
+            ->withCount('tasks')
             ->latest()
             ->get();
-
+        
         return view('projects.index', compact('projects'));
     }
 
@@ -32,12 +34,14 @@ class ProjectController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-        ]);
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string|max:1000',
+    ]);
 
+    try {
+        // Créer le projet
         $project = Project::create([
             'name' => $validated['name'],
             'description' => $validated['description'],
@@ -46,16 +50,27 @@ class ProjectController extends Controller
 
         return redirect()->route('projects.show', $project)
             ->with('success', 'Projet créé avec succès !');
+            
+    } catch (\Exception $e) {
+        Log::error('Erreur lors de la création du projet:', [
+            'error' => $e->getMessage(),
+            'user_id' => Auth::id(),
+            'data' => $validated,
+            'trace' => $e->getTraceAsString()
+        ]);
+        
+        return back()
+            ->withInput()
+            ->with('error', 'Erreur lors de la création du projet: ' . $e->getMessage());
     }
+}
 
     public function show(Project $project)
     {
-        // Vérifier que l'utilisateur a accès au projet
         if (!$project->hasMember(Auth::user())) {
             abort(403, 'Accès non autorisé à ce projet.');
         }
 
-        // Récupérer les tâches du projet
         $tasks = $project->tasks()->with('user')->get();
 
         return view('projects.show', compact('project', 'tasks'));
@@ -63,9 +78,8 @@ class ProjectController extends Controller
 
     public function edit(Project $project)
     {
-        // Seul le propriétaire peut modifier
-        if ($project->user_id !== Auth::id()) {
-            abort(403, 'Seul le propriétaire peut modifier ce projet.');
+        if (!$project->canManage(Auth::user())) {
+            abort(403, 'Vous n\'avez pas les permissions pour modifier ce projet.');
         }
 
         return view('projects.edit', compact('project'));
@@ -73,9 +87,8 @@ class ProjectController extends Controller
 
     public function update(Request $request, Project $project)
     {
-        // Seul le propriétaire peut modifier
-        if ($project->user_id !== Auth::id()) {
-            abort(403, 'Seul le propriétaire peut modifier ce projet.');
+        if (!$project->canManage(Auth::user())) {
+            abort(403, 'Vous n\'avez pas les permissions pour modifier ce projet.');
         }
 
         $validated = $request->validate([
@@ -85,13 +98,12 @@ class ProjectController extends Controller
 
         $project->update($validated);
 
-        return redirect()->route('projects.show', $project)
+        return redirect()->route('projects.edit', $project)
             ->with('success', 'Projet mis à jour avec succès !');
     }
 
     public function destroy(Project $project)
     {
-        // Seul le propriétaire peut supprimer
         if ($project->user_id !== Auth::id()) {
             abort(403, 'Seul le propriétaire peut supprimer ce projet.');
         }
@@ -103,29 +115,25 @@ class ProjectController extends Controller
     }
 
     /**
-     * Vue Liste des tâches (CORRIGÉE)
+     * Vue Liste des tâches
      */
     public function listView(Project $project)
     {
-        // Vérifier l'accès
         if (!$project->hasMember(Auth::user())) {
             abort(403, 'Accès non autorisé à ce projet.');
         }
 
-        // Récupérer les tâches avec filtres et recherche
         $query = $project->tasks()->with('user');
 
-        // Filtres par statut
+        // Filtres
         if (request('status')) {
             $query->where('column', request('status'));
         }
 
-        // Filtres par catégorie
         if (request('category')) {
             $query->where('category', request('category'));
         }
 
-        // Recherche par titre
         if (request('search')) {
             $query->where('title', 'like', '%' . request('search') . '%');
         }
@@ -135,10 +143,8 @@ class ProjectController extends Controller
         $sortOrder = request('order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
 
-        // CORRECTION: Utiliser paginate au lieu de get
         $tasks = $query->paginate(20);
 
-        // Récupérer les catégories et statuts pour les filtres
         $categories = $project->tasks()->distinct()->whereNotNull('category')->pluck('category');
         $statuses = ['Backlog', 'To Do', 'In Progress', 'To Be Checked', 'Done'];
 
@@ -146,22 +152,19 @@ class ProjectController extends Controller
     }
 
     /**
-     * Vue Calendrier des tâches (CORRIGÉE)
+     * Vue Calendrier des tâches
      */
     public function calendarView(Project $project)
     {
-        // Vérifier l'accès
         if (!$project->hasMember(Auth::user())) {
             abort(403, 'Accès non autorisé à ce projet.');
         }
 
-        // Récupérer les tâches avec dates d'échéance
         $tasks = $project->tasks()
             ->with('user')
             ->whereNotNull('due_date')
             ->get();
 
-        // Préparer les données pour le calendrier
         $calendarTasks = $tasks->map(function ($task) {
             return [
                 'id' => $task->id,
@@ -182,11 +185,46 @@ class ProjectController extends Controller
     }
 
     /**
+     * Export iCal
+     */
+    public function exportIcal(Project $project)
+    {
+        if (!$project->hasMember(Auth::user())) {
+            abort(403, 'Accès non autorisé à ce projet.');
+        }
+
+        $tasks = $project->tasks()->whereNotNull('due_date')->get();
+
+        $ical = "BEGIN:VCALENDAR\r\n";
+        $ical .= "VERSION:2.0\r\n";
+        $ical .= "PRODID:-//Kanboard//Kanboard//FR\r\n";
+        $ical .= "CALSCALE:GREGORIAN\r\n";
+
+        foreach ($tasks as $task) {
+            $ical .= "BEGIN:VEVENT\r\n";
+            $ical .= "UID:" . $task->id . "@kanboard.local\r\n";
+            $ical .= "DTSTAMP:" . now()->format('Ymd\THis\Z') . "\r\n";
+            $ical .= "DTSTART:" . \Carbon\Carbon::parse($task->due_date)->format('Ymd') . "\r\n";
+            $ical .= "SUMMARY:" . $task->title . "\r\n";
+            if ($task->description) {
+                $ical .= "DESCRIPTION:" . str_replace(["\r\n", "\n", "\r"], "\\n", $task->description) . "\r\n";
+            }
+            $ical .= "STATUS:" . ($task->column === 'Done' ? 'COMPLETED' : 'CONFIRMED') . "\r\n";
+            $ical .= "END:VEVENT\r\n";
+        }
+
+        $ical .= "END:VCALENDAR\r\n";
+
+        return response($ical)
+            ->header('Content-Type', 'text/calendar')
+            ->header('Content-Disposition', 'attachment; filename="' . $project->name . '.ics"');
+    }
+
+    /**
      * Statistiques du projet
      */
     public function stats(Project $project)
     {
-        // Vérifier l'accès
         if (!$project->hasMember(Auth::user())) {
             abort(403, 'Accès non autorisé à ce projet.');
         }
@@ -195,101 +233,25 @@ class ProjectController extends Controller
             'total_tasks' => $project->tasks()->count(),
             'completed_tasks' => $project->tasks()->where('column', 'Done')->count(),
             'in_progress_tasks' => $project->tasks()->where('column', 'In Progress')->count(),
+            'pending_tasks' => $project->tasks()->whereIn('column', ['Backlog', 'To Do'])->count(),
             'overdue_tasks' => $project->tasks()
                 ->whereNotNull('due_date')
                 ->where('due_date', '<', now())
                 ->where('column', '!=', 'Done')
                 ->count(),
-            
-            // Répartition par colonne
-            'tasks_by_column' => $project->tasks()
-                ->groupBy('column')
-                ->selectRaw('column, count(*) as count')
-                ->pluck('count', 'column'),
-            
-            // Répartition par catégorie
-            'tasks_by_category' => $project->tasks()
-                ->whereNotNull('category')
-                ->groupBy('category')
-                ->selectRaw('category, count(*) as count')
-                ->pluck('count', 'category'),
-            
-            // Répartition par utilisateur
-            'tasks_by_user' => $project->tasks()
-                ->with('user')
-                ->get()
-                ->groupBy('user.name')
-                ->map->count(),
         ];
 
-        return view('projects.stats', compact('project', 'stats'));
-    }
+        $tasksByCategory = $project->tasks()
+            ->selectRaw('category, COUNT(*) as count')
+            ->groupBy('category')
+            ->pluck('count', 'category');
 
-    /**
-     * Export iCal
-     */
-    public function exportIcal(Project $project)
-    {
-        // Vérifier l'accès
-        if (!$project->hasMember(Auth::user())) {
-            abort(403, 'Accès non autorisé à ce projet.');
-        }
+        $tasksByUser = $project->tasks()
+            ->join('users', 'tasks.user_id', '=', 'users.id')
+            ->selectRaw('users.name, COUNT(*) as count')
+            ->groupBy('users.id', 'users.name')
+            ->pluck('count', 'name');
 
-        $tasks = $project->tasks()
-            ->whereNotNull('due_date')
-            ->get();
-
-        $ical = "BEGIN:VCALENDAR\r\n";
-        $ical .= "VERSION:2.0\r\n";
-        $ical .= "PRODID:-//Kanboard//NONSGML v1.0//EN\r\n";
-        $ical .= "CALSCALE:GREGORIAN\r\n";
-
-        foreach ($tasks as $task) {
-            $ical .= "BEGIN:VEVENT\r\n";
-            $ical .= "UID:" . $task->id . "@kanboard.local\r\n";
-            $ical .= "DTSTAMP:" . now()->format('Ymd\THis\Z') . "\r\n";
-            
-            $dueDate = $task->due_date instanceof \Carbon\Carbon ? $task->due_date : \Carbon\Carbon::parse($task->due_date);
-            $ical .= "DTSTART;VALUE=DATE:" . $dueDate->format('Ymd') . "\r\n";
-            
-            $ical .= "SUMMARY:" . str_replace(',', '\,', $task->title) . "\r\n";
-            
-            if ($task->description) {
-                $ical .= "DESCRIPTION:" . str_replace(',', '\,', $task->description) . "\r\n";
-            }
-            
-            if ($task->category) {
-                $ical .= "CATEGORIES:" . $task->category . "\r\n";
-            }
-            
-            $ical .= "STATUS:" . ($task->column === 'Done' ? 'COMPLETED' : 'NEEDS-ACTION') . "\r\n";
-            $ical .= "END:VEVENT\r\n";
-        }
-
-        $ical .= "END:VCALENDAR\r\n";
-
-        return response($ical)
-            ->header('Content-Type', 'text/calendar; charset=utf-8')
-            ->header('Content-Disposition', 'attachment; filename="' . $project->name . '.ics"');
-    }
-
-    /**
-     * API pour synchronisation hors-ligne
-     */
-    public function syncData(Project $project)
-    {
-        // Vérifier l'accès
-        if (!$project->hasMember(Auth::user())) {
-            return response()->json(['error' => 'Accès non autorisé'], 403);
-        }
-
-        $data = [
-            'project' => $project,
-            'tasks' => $project->tasks()->with('user')->get(),
-            'members' => $project->members()->get(),
-            'last_sync' => now()->toISOString(),
-        ];
-
-        return response()->json($data);
+        return view('projects.stats', compact('project', 'stats', 'tasksByCategory', 'tasksByUser'));
     }
 }

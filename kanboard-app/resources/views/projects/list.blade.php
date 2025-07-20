@@ -226,12 +226,12 @@
                                 {{-- Actions --}}
                                 <div class="col-span-1">
                                     <div class="flex items-center space-x-2">
-                                        <button onclick="editTask('{{ $task->id }}')" 
+                                        <button onclick="ListTaskManager.editTask('{{ $task->id }}')" 
                                                 class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                                                 title="Modifier">
                                             <i class="fas fa-edit text-sm"></i>
                                         </button>
-                                        <button onclick="deleteTask('{{ $task->id }}')" 
+                                        <button onclick="ListTaskManager.deleteTask('{{ $task->id }}')" 
                                                 class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                                                 title="Supprimer">
                                             <i class="fas fa-trash text-sm"></i>
@@ -274,7 +274,7 @@
         </div>
     </div>
 
-    {{-- Modal de tâche (réutiliser le même que la vue Kanban) --}}
+    {{-- Modal de tâche --}}
     <div id="taskModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
@@ -296,6 +296,15 @@
                            required
                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100">
                 </div>
+
+                <div>
+                    <label for="taskDescription" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Description
+                    </label>
+                    <textarea id="taskDescription" 
+                              rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100"></textarea>
+                </div>
                 
                 <div>
                     <label for="taskCategory" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -304,6 +313,19 @@
                     <input type="text" 
                            id="taskCategory"
                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100">
+                </div>
+
+                <div>
+                    <label for="taskPriority" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Priorité
+                    </label>
+                    <select id="taskPriority" 
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100">
+                        <option value="low">🟢 Faible</option>
+                        <option value="medium" selected>🟡 Moyenne</option>
+                        <option value="high">🟠 Haute</option>
+                        <option value="urgent">🔴 Urgente</option>
+                    </select>
                 </div>
                 
                 <div>
@@ -334,6 +356,7 @@
                 </button>
                 <button type="submit" 
                         form="taskForm"
+                        id="saveTaskBtn"
                         class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
                     Sauvegarder
                 </button>
@@ -342,91 +365,271 @@
     </div>
 
     @push('scripts')
-        <script>
-            // Réutiliser les fonctions de task.js
+    <script>
+        // Script spécifique à la vue liste
+        window.ListTaskManager = (function() {
+            'use strict';
+            
+            console.log('Initialisation du gestionnaire de tâches pour la vue liste');
+            
+            // Désactiver task.js si présent
+            if (window.taskSystemLoaded) {
+                console.log('Désactivation de task.js pour la vue liste');
+                window.taskSystemInitialized = false;
+            }
+            
             const projectId = {{ $project->id }};
             
+            // Fonction pour éditer une tâche
             function editTask(taskId) {
-                // Récupérer les données de la tâche depuis la liste
-                fetch(`/tasks/${taskId}/data`)
-                    .then(response => response.json())
-                    .then(task => {
-                        document.getElementById('taskMode').value = 'edit';
-                        document.getElementById('editTargetId').value = taskId;
-                        document.getElementById('taskTitle').value = task.title;
-                        document.getElementById('taskCategory').value = task.category || '';
-                        document.getElementById('taskColor').value = task.color || '#3b82f6';
-                        document.getElementById('taskDate').value = task.due_date || '';
-                        
-                        document.getElementById('taskModal').classList.remove('hidden');
-                    })
-                    .catch(error => {
-                        console.error('Erreur:', error);
-                        alert('Erreur lors du chargement de la tâche');
-                    });
-            }
-            
-            function deleteTask(taskId) {
-                if (confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) {
-                    fetch(`/tasks/${taskId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            location.reload();
-                        } else {
-                            alert('Erreur lors de la suppression');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Erreur:', error);
-                        alert('Erreur lors de la suppression');
-                    });
-                }
-            }
-            
-            // Fermeture du modal
-            document.getElementById('cancelTaskModal').addEventListener('click', () => {
-                document.getElementById('taskModal').classList.add('hidden');
-            });
-            
-            // Soumission du formulaire
-            document.getElementById('taskForm').addEventListener('submit', (e) => {
-                e.preventDefault();
+                console.log('Édition de la tâche:', taskId);
                 
-                const taskId = document.getElementById('editTargetId').value;
-                const formData = {
-                    title: document.getElementById('taskTitle').value,
-                    category: document.getElementById('taskCategory').value,
-                    color: document.getElementById('taskColor').value,
-                    due_date: document.getElementById('taskDate').value
-                };
-                
-                fetch(`/tasks/${taskId}`, {
-                    method: 'PUT',
+                fetch(`/tasks/${taskId}/data`, {
+                    method: 'GET',
                     headers: {
+                        'Accept': 'application/json',
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    },
-                    body: JSON.stringify(formData)
+                    }
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success || data.id) {
-                        location.reload();
+                .then(response => {
+                    console.log('Statut réponse:', response.status);
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            console.error('Réponse serveur:', text);
+                            throw new Error(`HTTP ${response.status}: ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(task => {
+                    console.log('Données reçues:', task);
+                    
+                    // Remplir le formulaire
+                    document.getElementById('taskMode').value = 'edit';
+                    document.getElementById('editTargetId').value = taskId;
+                    document.getElementById('taskTitle').value = task.title || '';
+                    document.getElementById('taskDescription').value = task.description || '';
+                    document.getElementById('taskCategory').value = task.category || '';
+                    document.getElementById('taskPriority').value = task.priority || 'medium';
+                    document.getElementById('taskColor').value = task.color || '#3b82f6';
+                    if (task.due_date) {
+                        // Si c'est déjà au bon format (YYYY-MM-DD)
+                        if (task.due_date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                            document.getElementById('taskDate').value = task.due_date;
+                        } else {
+                            // Sinon, parser et reformater
+                            const date = new Date(task.due_date);
+                            if (!isNaN(date.getTime())) {
+                                document.getElementById('taskDate').value = date.toISOString().split('T')[0];
+                            }
+                        }
+                        console.log('📅 Date formatée:', document.getElementById('taskDate').value);
                     } else {
-                        alert('Erreur lors de la mise à jour');
+                        document.getElementById('taskDate').value = '';
+                    }
+                    
+                    // Afficher le modal
+                    document.getElementById('taskModal').classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error('Erreur lors du chargement:', error);
+                    showNotification('Erreur lors du chargement de la tâche: ' + error.message, 'error');
+                });
+            }
+            
+            // Fonction pour supprimer une tâche
+            function deleteTask(taskId) {
+                if (!confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?')) {
+                    return;
+                }
+                
+                console.log('Suppression de la tâche:', taskId);
+                
+                fetch(`/tasks/${taskId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    }
+                })
+                .then(response => {
+                    console.log('📡 Statut réponse suppression:', response.status);
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            console.error('Réponse serveur:', text);
+                            throw new Error(`HTTP ${response.status}: ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Réponse suppression:', data);
+                    
+                    if (data.success) {
+                        showNotification('Tâche supprimée avec succès', 'success');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        throw new Error(data.message || 'Erreur inconnue');
                     }
                 })
                 .catch(error => {
-                    console.error('Erreur:', error);
-                    alert('Erreur lors de la mise à jour');
+                    console.error('Erreur lors de la suppression:', error);
+                    showNotification('Erreur lors de la suppression: ' + error.message, 'error');
                 });
+            }
+            
+            // Fonction pour afficher les notifications
+            function showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 right-4 p-4 rounded-lg text-white z-50 transition-all duration-300 ${
+                    type === 'success' ? 'bg-green-500' : 
+                    type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+                }`;
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                notification.textContent = message;
+                
+                document.body.appendChild(notification);
+                
+                // Animation d'entrée
+                setTimeout(() => {
+                    notification.style.opacity = '1';
+                    notification.style.transform = 'translateX(0)';
+                }, 100);
+                
+                // Suppression après 3 secondes
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }
+            
+            // Initialisation au chargement du DOM
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('Initialisation des gestionnaires d\'événements');
+                
+                // Gestionnaire pour fermer le modal
+                const cancelBtn = document.getElementById('cancelTaskModal');
+                const taskModal = document.getElementById('taskModal');
+                
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', () => {
+                        taskModal.classList.add('hidden');
+                    });
+                }
+                
+                // Fermer le modal en cliquant en dehors
+                if (taskModal) {
+                    taskModal.addEventListener('click', (e) => {
+                        if (e.target === e.currentTarget) {
+                            taskModal.classList.add('hidden');
+                        }
+                    });
+                }
+                
+                // Gestionnaire pour la soumission du formulaire
+                const taskForm = document.getElementById('taskForm');
+                if (taskForm) {
+                    taskForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        
+                        const taskId = document.getElementById('editTargetId').value;
+                        const saveBtn = document.getElementById('saveTaskBtn');
+                        
+                        // Éviter les double-clics
+                        if (saveBtn.disabled) return;
+                        
+                        // Validation côté client
+                        const title = document.getElementById('taskTitle').value.trim();
+                        if (!title) {
+                            showNotification('Le titre est obligatoire', 'error');
+                            return;
+                        }
+                        
+                        // Préparer les données avec TOUS les champs
+                        const formData = {
+                            title: title,
+                            description: document.getElementById('taskDescription').value.trim(),
+                            category: document.getElementById('taskCategory').value.trim(),
+                            priority: document.getElementById('taskPriority').value,
+                            color: document.getElementById('taskColor').value,
+                            due_date: document.getElementById('taskDate').value || null
+                        };
+                        
+                        console.log('Mise à jour avec données:', formData);
+                        
+                        // Désactiver le bouton
+                        saveBtn.disabled = true;
+                        saveBtn.textContent = 'Sauvegarde...';
+                        
+                        fetch(`/tasks/${taskId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            },
+                            body: JSON.stringify(formData)
+                        })
+                        .then(response => {
+                            console.log('📡 Statut réponse mise à jour:', response.status);
+                            if (!response.ok) {
+                                return response.text().then(text => {
+                                    console.error('Réponse serveur:', text);
+                                    let errorMessage = `HTTP ${response.status}`;
+                                    try {
+                                        const errorData = JSON.parse(text);
+                                        errorMessage = errorData.message || errorData.error || errorMessage;
+                                    } catch(e) {
+                                        errorMessage = text || errorMessage;
+                                    }
+                                    throw new Error(errorMessage);
+                                });
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Tâche mise à jour:', data);
+                            
+                            // Fermer le modal
+                            document.getElementById('taskModal').classList.add('hidden');
+                            
+                            // Afficher notification de succès
+                            showNotification('Tâche mise à jour avec succès', 'success');
+                            
+                            // Recharger la page
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        })
+                        .catch(error => {
+                            console.error('Erreur lors de la mise à jour:', error);
+                            showNotification('Erreur lors de la mise à jour: ' + error.message, 'error');
+                        })
+                        .finally(() => {
+                            // Réactiver le bouton
+                            saveBtn.disabled = false;
+                            saveBtn.textContent = 'Sauvegarder';
+                        });
+                    });
+                }
+                
+                console.log('Gestionnaire de tâches pour la vue liste initialisé');
             });
-        </script>
+            
+            // API publique
+            return {
+                editTask: editTask,
+                deleteTask: deleteTask,
+                showNotification: showNotification
+            };
+            
+        })();
+    </script>
     @endpush
 </x-app-layout>

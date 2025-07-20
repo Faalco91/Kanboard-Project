@@ -46,7 +46,7 @@
     @vite(['resources/css/app.css'])
     @stack('styles')
     
-    {{-- Alpine.js (IMPORTANT: Chargé avant les autres scripts) --}}
+    {{-- Alpine.js --}}
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="font-sans antialiased bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100" x-data="{ darkMode: false }" x-init="darkMode = document.documentElement.classList.contains('dark')">
@@ -87,7 +87,7 @@
     {{-- Scripts --}}
     @vite(['resources/js/app.js'])
     
-    {{-- Script pour le dark mode (IMPORTANT: Après Alpine.js) --}}
+    {{-- Script pour le dark mode--}}
     <script>
         // Fonction Alpine pour le toggle du thème
         window.themeToggle = function() {
@@ -196,7 +196,7 @@
             window.addEventListener('load', function() {
                 if ('performance' in window && performance.timing) {
                     const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
-                    console.log(`⏱️ Temps de chargement: ${loadTime}ms`);
+                    console.log(`Temps de chargement: ${loadTime}ms`);
                 }
             });
         @endif
