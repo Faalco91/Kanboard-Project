@@ -27,7 +27,7 @@
                         {{ __('Projets') }}
                     </x-nav-link>
                     
-                    <x-nav-link :href="route('statistics')" :active="request()->routeIs('statistics')" class="focus-ring">
+                    <x-nav-link href="/statistics" :active="request()->routeIs('statistics')" class="focus-ring">
                         <i class="fas fa-chart-bar mr-2"></i>
                         {{ __('Statistiques') }}
                     </x-nav-link>
