@@ -1,10 +1,10 @@
 # Kanboard-App – Guide d’installation et de lancement en local
 
-Ce guide décrit toutes les étapes pour cloner, configurer et lancer le projet Laravel/Sail en local.
+Ce guide décrit toutes les étapes pour cloner, configurer et lancer le projet Kanboard en local.
 
 ---
 
-## Les prérequis pour lancercle projet
+## Les prérequis pour lancer le projet
 
 - Docker Desktop (macOS/Windows) ou Docker Engine + Docker Compose (Linux)
 - Git
