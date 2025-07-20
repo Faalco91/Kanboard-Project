@@ -102,8 +102,26 @@ class TaskController extends Controller
                 'due_date' => 'nullable|date',
             ]);
 
+            $updateData = $validated;
+
+            // Gérer le champ completed_at en fonction de la colonne
+            if (isset($validated['column'])) {
+                $newColumn = $validated['column'];
+                
+                // Si la tâche est déplacée vers "Done", marquer comme complétée
+                if ($newColumn === 'Done' && $task->column !== 'Done') {
+                    $updateData['completed_at'] = now();
+                    Log::info('Task marked as completed in update:', ['task_id' => $task->id, 'completed_at' => now()]);
+                }
+                // Si la tâche est déplacée hors de "Done", marquer comme non complétée
+                elseif ($newColumn !== 'Done' && $task->column === 'Done') {
+                    $updateData['completed_at'] = null;
+                    Log::info('Task marked as not completed in update:', ['task_id' => $task->id]);
+                }
+            }
+
             // Mettre à jour la tâche
-            $task->update($validated);
+            $task->update($updateData);
 
             return response()->json($task->load('user', 'project'));
 
@@ -158,7 +176,21 @@ class TaskController extends Controller
                 'column' => 'required|string|max:255',
             ]);
 
-            $task->update(['column' => $validated['column']]);
+            $newColumn = $validated['column'];
+            $updateData = ['column' => $newColumn];
+
+            // Si la tâche est déplacée vers "Done", marquer comme complétée
+            if ($newColumn === 'Done' && $task->column !== 'Done') {
+                $updateData['completed_at'] = now();
+                Log::info('Task marked as completed:', ['task_id' => $task->id, 'completed_at' => now()]);
+            }
+            // Si la tâche est déplacée hors de "Done", marquer comme non complétée
+            elseif ($newColumn !== 'Done' && $task->column === 'Done') {
+                $updateData['completed_at'] = null;
+                Log::info('Task marked as not completed:', ['task_id' => $task->id]);
+            }
+
+            $task->update($updateData);
 
             return response()->json($task);
 

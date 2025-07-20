@@ -581,6 +581,11 @@ function loadTasksFromServer() {
         return;
     }
 
+    // Nettoyer d'abord toutes les tâches existantes dans le DOM
+    document.querySelectorAll('.task-card').forEach(card => {
+        card.remove();
+    });
+
     tasks.forEach(task => {
         const li = generateTaskCard(task.title, task.category, task.color, task.id, task.due_date);
         li.id = `task-${task.id}`;
