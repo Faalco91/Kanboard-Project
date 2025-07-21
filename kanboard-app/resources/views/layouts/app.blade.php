@@ -19,8 +19,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     {{-- Favicon --}}
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/Kanboard_icon.svg') }}">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    
+
     {{-- Script critique pour éviter le flash du thème --}}
     <script>
         // Application immédiate du thème avant le rendu

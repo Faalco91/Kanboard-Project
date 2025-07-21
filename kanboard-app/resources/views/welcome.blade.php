@@ -28,6 +28,7 @@
     <meta name="twitter:image" content="{{ asset('images/kanboard-og.png') }}">
 
     {{-- Favicon --}}
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/Kanboard_icon.svg') }}">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <link rel="canonical" href="{{ url('/') }}">
     <link rel="sitemap" type="application/xml" href="{{ url('/sitemap.xml') }}">

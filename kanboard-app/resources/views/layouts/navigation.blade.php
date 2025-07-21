@@ -4,16 +4,16 @@
             <!-- Left side -->
             <div class="flex">
                 <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" class="flex items-center space-x-2 group">
-                        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
-                            <i class="fas fa-columns text-white text-sm"></i>
-                        </div>
-                        <span class="font-bold text-xl text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                            Kanboard
-                        </span>
-                    </a>
-                </div>
+                    <div class="shrink-0 flex items-center">
+                        <a href="{{ route('home') }}" class="flex items-center space-x-2 group">
+                            <img src="{{ asset('images/Kanboard_logo.svg') }}" 
+                                 alt="Logo Kanboard" 
+                                 class="w-12 h-12 group-hover:scale-105 transition-transform">
+                            <span class="font-bold text-xl text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                Kanboard
+                            </span>
+                        </a>
+                    </div>
 
                 <!-- Navigation Links Desktop -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
