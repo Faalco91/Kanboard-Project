@@ -1,4 +1,3 @@
-{{-- Template welcome.blade.php complet pour resources/views/welcome.blade.php --}}
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -89,9 +88,7 @@
                         {{-- Logo --}}
                         <div class="flex items-center">
                             <a href="{{ url('/') }}" class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-                                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-columns text-white text-lg"></i>
-                                </div>
+                                <img src="{{ asset('images/Kanboard_icon.svg') }}" width='60' height='60'/>                             
                                 <span class="text-xl font-bold text-gray-900 dark:text-white">Kanboard</span>
                             </a>
                         </div>
@@ -178,10 +175,8 @@
         <section class="hero-gradient py-16 sm:py-24 fade-in">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center">
-                    <div class="mb-8">
-                        <div class="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                            <i class="fas fa-columns text-white text-3xl"></i>
-                        </div>
+                    <div class="mb-8 flex justify-center items-center">
+                        <img src="{{ asset('images/Kanboard_icon.svg') }}" width='250' height='250'/>                             
                     </div>
                     
                     <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 slide-up">

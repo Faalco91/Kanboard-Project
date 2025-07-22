@@ -6,7 +6,7 @@
                 <!-- Logo -->
                     <div class="shrink-0 flex items-center">
                         <a href="{{ route('home') }}" class="flex items-center space-x-2 group">
-                            <img src="{{ asset('images/Kanboard_logo.svg') }}" 
+                            <img src="{{ asset('images/Kanboard_icon.svg') }}" 
                                  alt="Logo Kanboard" 
                                  class="w-12 h-12 group-hover:scale-105 transition-transform">
                             <span class="font-bold text-xl text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
