@@ -101,7 +101,7 @@
     background-color: #2563eb;
 }
 
-/* Amélioration de l'interface de recherche */
+/* Interface de recherche */
 .search-filters {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 0.5rem;
@@ -168,7 +168,7 @@
     background: rgba(255,255,255,0.2);
 }
 
-/* Amélioration du tableau */
+/* Styles du tableau */
 .task-table {
     background: white;
     border-radius: 0.5rem;

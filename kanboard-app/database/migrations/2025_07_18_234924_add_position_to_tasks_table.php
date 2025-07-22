@@ -9,14 +9,14 @@ return new class extends Migration
     public function up()
     {
         Schema::table('tasks', function (Blueprint $table) {
-            $table->date('due_date')->nullable()->after('user_id');
+            $table->integer('position')->default(0)->after('column');
         });
     }
 
     public function down()
     {
         Schema::table('tasks', function (Blueprint $table) {
-            $table->dropColumn('due_date');
+            $table->dropColumn('position');
         });
     }
 };

@@ -34,95 +34,287 @@
         {{-- FullCalendar CSS --}}
         <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
         <style>
-            /* Personnalisation du calendrier pour le dark mode */
+            /* ===== PERSONNALISATION CALENDRIER DARK MODE ===== */
             .fc {
                 background: white;
                 border-radius: 0.75rem;
                 overflow: hidden;
                 box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+                border: 1px solid #e5e7eb;
             }
             
+            /* Dark mode pour le calendrier */
             .dark .fc {
-                background: rgb(31 41 55);
-                color: rgb(243 244 246);
+                background: #1f2937;
+                border-color: #374151;
+                color: #f9fafb;
             }
             
-            .fc-toolbar {
-                background: rgb(249 250 251);
+            /* En-têtes du calendrier */
+            .fc .fc-toolbar {
+                background: #f8fafc;
                 padding: 1rem;
-                border-bottom: 1px solid rgb(229 231 235);
+                border-bottom: 1px solid #e5e7eb;
             }
             
-            .dark .fc-toolbar {
-                background: rgb(17 24 39);
-                border-bottom-color: rgb(55 65 81);
+            .dark .fc .fc-toolbar {
+                background: #111827;
+                border-color: #374151;
             }
             
-            .fc-button {
-                background: rgb(59 130 246) !important;
-                border-color: rgb(59 130 246) !important;
-                border-radius: 0.5rem !important;
-                font-weight: 500 !important;
-                padding: 0.5rem 1rem !important;
+            .fc .fc-toolbar-title {
+                color: #1f2937;
+                font-weight: 600;
             }
             
-            .fc-button:hover {
-                background: rgb(37 99 235) !important;
-                border-color: rgb(37 99 235) !important;
+            .dark .fc .fc-toolbar-title {
+                color: #f9fafb;
             }
             
-            .fc-button-primary:disabled {
-                background: rgb(156 163 175) !important;
-                border-color: rgb(156 163 175) !important;
-            }
-            
-            .fc-daygrid-day {
-                border-color: rgb(229 231 235);
-            }
-            
-            .dark .fc-daygrid-day {
-                border-color: rgb(55 65 81);
-            }
-            
-            .fc-day-today {
-                background: rgb(239 246 255) !important;
-            }
-            
-            .dark .fc-day-today {
-                background: rgb(30 58 138) !important;
-            }
-            
-            .fc-event {
-                border-radius: 0.375rem;
-                padding: 0.125rem 0.375rem;
+            /* Boutons de navigation */
+            .fc .fc-button {
+                background: #3b82f6;
+                border-color: #3b82f6;
+                color: white;
+                border-radius: 0.5rem;
+                padding: 0.5rem 1rem;
                 font-weight: 500;
-                font-size: 0.75rem;
-                cursor: pointer;
             }
             
-            .fc-event:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            .fc .fc-button:hover {
+                background: #2563eb;
+                border-color: #2563eb;
             }
             
-            .calendar-legend {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 1rem;
-                margin-bottom: 1rem;
+            .fc .fc-button:disabled {
+                background: #9ca3af;
+                border-color: #9ca3af;
+                opacity: 0.5;
             }
             
-            .legend-item {
+            .dark .fc .fc-button:disabled {
+                background: #4b5563;
+                border-color: #4b5563;
+            }
+            
+            /* En-têtes des jours */
+            .fc .fc-col-header {
+                background: #f8fafc;
+                border-bottom: 1px solid #e5e7eb;
+            }
+            
+            .dark .fc .fc-col-header {
+                background: #111827;
+                border-color: #374151;
+            }
+            
+            .fc .fc-col-header-cell {
+                padding: 0.75rem 0.5rem;
+                font-weight: 600;
+                color: #374151;
+            }
+            
+            .dark .fc .fc-col-header-cell {
+                color: #d1d5db;
+            }
+            
+            /* Cellules des jours */
+            .fc .fc-daygrid-day {
+                background: white;
+                border-color: #f3f4f6;
+                min-height: 120px;
+            }
+            
+            .dark .fc .fc-daygrid-day {
+                background: #1f2937;
+                border-color: #374151;
+            }
+            
+            .fc .fc-daygrid-day:hover {
+                background: #f8fafc;
+            }
+            
+            .dark .fc .fc-daygrid-day:hover {
+                background: #374151;
+            }
+            
+            /* Numéros des jours */
+            .fc .fc-daygrid-day-number {
+                color: #374151;
+                font-weight: 500;
+                padding: 0.5rem;
+            }
+            
+            .dark .fc .fc-daygrid-day-number {
+                color: #d1d5db;
+            }
+            
+            /* Jour aujourd'hui */
+            .fc .fc-day-today {
+                background: #eff6ff !important;
+            }
+            
+            .dark .fc .fc-day-today {
+                background: #1e3a8a !important;
+            }
+            
+            .fc .fc-day-today .fc-daygrid-day-number {
+                background: #3b82f6;
+                color: white;
+                border-radius: 50%;
+                width: 2rem;
+                height: 2rem;
                 display: flex;
                 align-items: center;
-                gap: 0.5rem;
-                font-size: 0.875rem;
+                justify-content: center;
+                margin: 0.25rem;
             }
             
-            .legend-color {
-                width: 1rem;
-                height: 1rem;
+            /* Événements/Tâches */
+            .fc .fc-event {
+                border-radius: 0.375rem;
+                border: none;
+                padding: 0.25rem 0.5rem;
+                margin: 0.125rem;
+                font-size: 0.75rem;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+            
+            .fc .fc-event:hover {
+                transform: scale(1.02);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            }
+            
+            .fc .fc-event-title {
+                font-weight: 500;
+            }
+            
+            /* Couleurs spécifiques par statut */
+            .fc .fc-event.status-backlog {
+                background: #6b7280;
+                color: white;
+            }
+            
+            .fc .fc-event.status-todo {
+                background: #3b82f6;
+                color: white;
+            }
+            
+            .fc .fc-event.status-progress {
+                background: #f59e0b;
+                color: white;
+            }
+            
+            .fc .fc-event.status-check {
+                background: #8b5cf6;
+                color: white;
+            }
+            
+            .fc .fc-event.status-done {
+                background: #10b981;
+                color: white;
+            }
+            
+            /* Vue semaine et jour */
+            .fc .fc-timegrid-slot {
+                height: 3rem;
+                border-color: #f3f4f6;
+            }
+            
+            .dark .fc .fc-timegrid-slot {
+                border-color: #374151;
+            }
+            
+            .fc .fc-timegrid-axis {
+                background: #f8fafc;
+                border-color: #e5e7eb;
+            }
+            
+            .dark .fc .fc-timegrid-axis {
+                background: #111827;
+                border-color: #374151;
+                color: #d1d5db;
+            }
+            
+            /* Responsive */
+            @media (max-width: 768px) {
+                .fc .fc-toolbar {
+                    flex-direction: column;
+                    gap: 0.5rem;
+                }
+                
+                .fc .fc-toolbar-chunk {
+                    display: flex;
+                    justify-content: center;
+                }
+                
+                .fc .fc-button {
+                    padding: 0.375rem 0.75rem;
+                    font-size: 0.875rem;
+                }
+            }
+            
+            /* Animations */
+            .fc .fc-event {
+                animation: eventFadeIn 0.3s ease-out;
+            }
+            
+            @keyframes eventFadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(-10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            /* Bordures globales pour le dark mode */
+            .dark .fc td,
+            .dark .fc th {
+                border-color: #374151;
+            }
+            
+            .dark .fc .fc-scrollgrid {
+                border-color: #374151;
+            }
+            
+            /* Personnalisation du contenu des cellules */
+            .fc .fc-daygrid-day-events {
+                margin: 0.25rem;
+            }
+            
+            .fc .fc-daygrid-event-harness {
+                margin-bottom: 0.125rem;
+            }
+            
+            /* Plus d'événements */
+            .fc .fc-daygrid-more-link {
+                background: #f3f4f6;
+                color: #6b7280;
                 border-radius: 0.25rem;
+                padding: 0.125rem 0.375rem;
+                font-size: 0.75rem;
+                text-decoration: none;
+                margin: 0.125rem;
+            }
+            
+            .dark .fc .fc-daygrid-more-link {
+                background: #4b5563;
+                color: #d1d5db;
+            }
+            
+            .fc .fc-daygrid-more-link:hover {
+                background: #e5e7eb;
+                color: #374151;
+            }
+            
+            .dark .fc .fc-daygrid-more-link:hover {
+                background: #6b7280;
+                color: #f3f4f6;
             }
         </style>
     @endpush
@@ -130,41 +322,50 @@
     <div class="py-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
-            {{-- Légende --}}
+            {{-- Messages de succès/erreur --}}
+            @if(session('success'))
+                <div class="mb-6 bg-green-50 dark:bg-green-900/50 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                    <div class="flex">
+                        <i class="fas fa-check-circle text-green-400 mr-3 mt-0.5"></i>
+                        <p class="text-green-800 dark:text-green-200">{{ session('success') }}</p>
+                    </div>
+                </div>
+            @endif
+
+            {{-- Contrôles de vue --}}
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6">
-                <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Légende</h3>
-                <div class="calendar-legend">
-                    <div class="legend-item">
-                        <div class="legend-color bg-gray-500"></div>
-                        <span class="text-gray-700 dark:text-gray-300">Backlog</span>
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                            Calendrier des tâches
+                        </h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            Visualisez vos tâches en fonction de leur date d'échéance
+                        </p>
                     </div>
-                    <div class="legend-item">
-                        <div class="legend-color bg-blue-500"></div>
-                        <span class="text-gray-700 dark:text-gray-300">To Do</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color bg-yellow-500"></div>
-                        <span class="text-gray-700 dark:text-gray-300">In Progress</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color bg-purple-500"></div>
-                        <span class="text-gray-700 dark:text-gray-300">To Be Checked</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color bg-green-500"></div>
-                        <span class="text-gray-700 dark:text-gray-300">Done</span>
+                    
+                    <div class="flex gap-2">
+                        <button id="dayViewBtn" class="px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                            Jour
+                        </button>
+                        <button id="weekViewBtn" class="px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                            Semaine
+                        </button>
+                        <button id="monthViewBtn" class="px-3 py-2 text-sm bg-blue-600 text-white rounded-lg">
+                            Mois
+                        </button>
                     </div>
                 </div>
             </div>
 
             {{-- Calendrier --}}
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <div id="calendar"></div>
             </div>
         </div>
     </div>
 
-    {{-- Modal de détails de tâche --}}
+    {{-- Modal de détail de tâche --}}
     <div id="taskDetailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
@@ -176,27 +377,31 @@
             <div class="px-6 py-4 space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Statut</label>
-                    <span id="modalTaskStatus" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"></span>
+                    <span id="modalTaskStatus" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
+                        En cours
+                    </span>
                 </div>
                 
                 <div id="modalTaskCategoryContainer" class="hidden">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Catégorie</label>
-                    <span id="modalTaskCategory" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white"></span>
+                    <span id="modalTaskCategory" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white">
+                        Développement
+                    </span>
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Assigné à</label>
-                    <p id="modalTaskUser" class="text-sm text-gray-900 dark:text-gray-100"></p>
+                    <p id="modalTaskUser" class="text-gray-900 dark:text-gray-100">John Doe</p>
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date d'échéance</label>
-                    <p id="modalTaskDate" class="text-sm text-gray-900 dark:text-gray-100"></p>
+                    <p id="modalTaskDate" class="text-gray-900 dark:text-gray-100">25/12/2024</p>
                 </div>
             </div>
             
-            <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-between">
-                <div class="flex space-x-2">
+            <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex gap-3 justify-end">
+                <div class="flex gap-2">
                     <button id="editTaskBtn" 
                             class="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
                         <i class="fas fa-edit mr-2"></i>Modifier
@@ -243,6 +448,7 @@
                     backgroundColor: statusColors[task.extendedProps.column] || task.backgroundColor,
                     borderColor: statusColors[task.extendedProps.column] || task.borderColor,
                     textColor: '#ffffff',
+                    className: `status-${task.extendedProps.column.toLowerCase().replace(/\s+/g, '')}`,
                     extendedProps: task.extendedProps
                 }));
                 
@@ -250,54 +456,79 @@
                 const calendar = new FullCalendar.Calendar(calendarEl, {
                     initialView: 'dayGridMonth',
                     locale: 'fr',
+                    height: 'auto',
                     headerToolbar: {
                         left: 'prev,next today',
                         center: 'title',
                         right: 'dayGridMonth,timeGridWeek,timeGridDay'
                     },
-                    height: 'auto',
+                    buttonText: {
+                        today: 'Aujourd\'hui',
+                        month: 'Mois',
+                        week: 'Semaine',
+                        day: 'Jour'
+                    },
                     events: events,
                     eventDisplay: 'block',
-                    dayMaxEvents: 3,
+                    dayMaxEventRows: 3,
                     moreLinkClick: 'popover',
-                    
-                    // Gestion du clic sur un événement
                     eventClick: function(info) {
                         showTaskDetail(info.event);
                     },
-                    
-                    // Styles personnalisés
-                    eventDidMount: function(info) {
-                        // Ajouter des classes CSS personnalisées
-                        info.el.classList.add('transition-all', 'duration-200');
-                        
-                        // Tooltip
-                        info.el.title = `${info.event.title}\nStatut: ${info.event.extendedProps.column}\nAssigné à: ${info.event.extendedProps.user}`;
+                    dateClick: function(info) {
+                        console.log('Date cliquée:', info.dateStr);
                     },
-                    
-                    // Responsive
-                    windowResizeDelay: 100
+                    eventMouseEnter: function(info) {
+                        info.el.style.transform = 'scale(1.05)';
+                        info.el.style.zIndex = '10';
+                    },
+                    eventMouseLeave: function(info) {
+                        info.el.style.transform = 'scale(1)';
+                        info.el.style.zIndex = '1';
+                    }
                 });
                 
                 calendar.render();
                 
-                // Fonction pour afficher les détails d'une tâche
+                // Gestionnaires pour les boutons de vue
+                document.getElementById('dayViewBtn').addEventListener('click', function() {
+                    calendar.changeView('timeGridDay');
+                    updateViewButtons('day');
+                });
+                
+                document.getElementById('weekViewBtn').addEventListener('click', function() {
+                    calendar.changeView('timeGridWeek');
+                    updateViewButtons('week');
+                });
+                
+                document.getElementById('monthViewBtn').addEventListener('click', function() {
+                    calendar.changeView('dayGridMonth');
+                    updateViewButtons('month');
+                });
+                
+                function updateViewButtons(activeView) {
+                    const buttons = ['dayViewBtn', 'weekViewBtn', 'monthViewBtn'];
+                    const views = ['day', 'week', 'month'];
+                    
+                    buttons.forEach((buttonId, index) => {
+                        const button = document.getElementById(buttonId);
+                        if (views[index] === activeView) {
+                            button.className = 'px-3 py-2 text-sm bg-blue-600 text-white rounded-lg';
+                        } else {
+                            button.className = 'px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors';
+                        }
+                    });
+                }
+                
+                // Affichage du détail d'une tâche
                 function showTaskDetail(event) {
                     const modal = document.getElementById('taskDetailModal');
-                    const statusColors = {
-                        'Backlog': 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
-                        'To Do': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-                        'In Progress': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-                        'To Be Checked': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-                        'Done': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                    };
                     
-                    // Remplir le modal
                     document.getElementById('modalTaskTitle').textContent = event.title;
                     
                     const statusElement = document.getElementById('modalTaskStatus');
                     statusElement.textContent = event.extendedProps.column;
-                    statusElement.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[event.extendedProps.column] || 'bg-gray-100 text-gray-800'}`;
+                    statusElement.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusClass(event.extendedProps.column)}`;
                     
                     // Catégorie (si existe)
                     const categoryContainer = document.getElementById('modalTaskCategoryContainer');
@@ -320,6 +551,17 @@
                     modal.classList.remove('hidden');
                 }
                 
+                function getStatusClass(status) {
+                    const classes = {
+                        'Backlog': 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
+                        'To Do': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+                        'In Progress': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+                        'To Be Checked': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+                        'Done': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                    };
+                    return classes[status] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+                }
+                
                 // Fonctions d'action
                 function editTaskFromCalendar(taskId) {
                     // Rediriger vers la vue Kanban avec l'édition de la tâche
@@ -331,87 +573,36 @@
                         fetch(`/tasks/${taskId}`, {
                             method: 'DELETE',
                             headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
                             }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                // Supprimer l'événement du calendrier
-                                const eventToRemove = calendar.getEventById(taskId);
-                                if (eventToRemove) {
-                                    eventToRemove.remove();
-                                }
-                                document.getElementById('taskDetailModal').classList.add('hidden');
-                                
-                                // Notification de succès
-                                if (typeof window.showNotification === 'function') {
-                                    window.showNotification('Tâche supprimée avec succès', 'success');
-                                }
+                        }).then(response => {
+                            if (response.ok) {
+                                window.location.reload();
                             } else {
                                 alert('Erreur lors de la suppression');
                             }
-                        })
-                        .catch(error => {
-                            console.error('Erreur:', error);
-                            alert('Erreur lors de la suppression');
                         });
                     }
                 }
                 
-                // Fermeture du modal
-                document.getElementById('closeTaskDetailModal').addEventListener('click', () => {
+                // Fermer le modal
+                document.getElementById('closeTaskDetailModal').addEventListener('click', function() {
                     document.getElementById('taskDetailModal').classList.add('hidden');
                 });
                 
                 // Fermer le modal en cliquant en dehors
-                document.getElementById('taskDetailModal').addEventListener('click', (e) => {
-                    if (e.target === document.getElementById('taskDetailModal')) {
+                document.getElementById('taskDetailModal').addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.add('hidden');
+                    }
+                });
+                
+                // Fermer avec Escape
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
                         document.getElementById('taskDetailModal').classList.add('hidden');
                     }
                 });
-                
-                // Adaptation du thème
-                function updateCalendarTheme() {
-                    const isDark = document.documentElement.classList.contains('dark');
-                    if (isDark) {
-                        calendarEl.classList.add('dark-theme');
-                    } else {
-                        calendarEl.classList.remove('dark-theme');
-                    }
-                }
-                
-                // Écouter les changements de thème
-                const observer = new MutationObserver((mutations) => {
-                    mutations.forEach((mutation) => {
-                        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                            updateCalendarTheme();
-                        }
-                    });
-                });
-                
-                observer.observe(document.documentElement, {
-                    attributes: true,
-                    attributeFilter: ['class']
-                });
-                
-                // Appliquer le thème initial
-                updateCalendarTheme();
-                
-                // Responsive: adapter la vue sur mobile
-                function handleResize() {
-                    if (window.innerWidth < 768) {
-                        calendar.changeView('timeGridDay');
-                    } else {
-                        calendar.changeView('dayGridMonth');
-                    }
-                }
-                
-                // Écouter les changements de taille d'écran
-                window.addEventListener('resize', handleResize);
-                
-                // Vérifier la taille initiale
-                handleResize();
             });
         </script>
     @endpush

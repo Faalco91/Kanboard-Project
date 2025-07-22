@@ -9,16 +9,16 @@ use Illuminate\Support\Facades\File;
 
 class GenerateSitemap extends Command
 {
-    // The name and signature of the console command.
+    // Nom et signature de la commande
     protected $signature = 'sitemap:generate {--path=public/sitemap.xml : Le chemin où sauvegarder le sitemap}';
 
-    // The console command description.
+    // Description de la commande
     protected $description = 'Génère un fichier sitemap.xml pour l\'application Kanboard';
 
-    // Execute the console command.
+    // Exécuter la commande
     public function handle(): int
     {
-        $this->info('🚀 Génération du sitemap en cours...');
+        $this->info('Génération du sitemap en cours...');
 
         try {
             $urls = $this->generateSitemapUrls();
@@ -35,8 +35,8 @@ class GenerateSitemap extends Command
             
             File::put($fullPath, $xml);
             
-            $this->info("✅ Sitemap généré avec succès dans : {$path}");
-            $this->info("📊 Nombre d'URLs incluses : " . count($urls));
+            $this->info("Sitemap généré avec succès dans : {$path}");
+            $this->info("Nombre d'URLs incluses : " . count($urls));
             
             // Affichage des URLs incluses
             $this->table(
@@ -51,7 +51,7 @@ class GenerateSitemap extends Command
             return Command::SUCCESS;
             
         } catch (\Exception $e) {
-            $this->error("❌ Erreur lors de la génération du sitemap : " . $e->getMessage());
+            $this->error("Erreur lors de la génération du sitemap : " . $e->getMessage());
             return Command::FAILURE;
         }
     }
@@ -147,16 +147,16 @@ class GenerateSitemap extends Command
         $xml .= ' http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">' . "\n";
 
         foreach ($urls as $url) {
-            $xml .= "  <url>\n";
-            $xml .= "    <loc>" . htmlspecialchars($url['url']) . "</loc>\n";
-            $xml .= "    <lastmod>" . $url['lastmod'] . "</lastmod>\n";
-            $xml .= "    <changefreq>" . $url['changefreq'] . "</changefreq>\n";
-            $xml .= "    <priority>" . $url['priority'] . "</priority>\n";
-            $xml .= "  </url>\n";
+            $xml .= '  <url>' . "\n";
+            $xml .= '    <loc>' . htmlspecialchars($url['url']) . '</loc>' . "\n";
+            $xml .= '    <lastmod>' . $url['lastmod'] . '</lastmod>' . "\n";
+            $xml .= '    <changefreq>' . $url['changefreq'] . '</changefreq>' . "\n";
+            $xml .= '    <priority>' . $url['priority'] . '</priority>' . "\n";
+            $xml .= '  </url>' . "\n";
         }
 
         $xml .= '</urlset>';
-
+        
         return $xml;
     }
 }

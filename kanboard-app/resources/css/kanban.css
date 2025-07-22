@@ -196,7 +196,6 @@
     backdrop-filter: blur(4px);
 }
 
-    /* IMPORTANT: Cette règle doit être plus forte */
     .modal.hidden {
         display: none !important;
     }
@@ -608,7 +607,7 @@
     border-color: #60a5fa;
 }
 
-/* Amélioration des tâches pour le drag & drop */
+/* Styles des tâches pour le drag & drop */
 .kanban-task {
     position: relative;
     transition: all 0.2s ease;
@@ -710,7 +709,7 @@
     transform: rotate(1deg);
 }
 
-/* Amélioration visuelle des colonnes pendant le drag */
+/* Styles visuels des colonnes pendant le drag */
 .kanban-column {
     position: relative;
 }

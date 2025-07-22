@@ -1,18 +1,18 @@
-// Une fois que le DOM est chargé
+// Gestion des modals
 document.addEventListener('DOMContentLoaded', function () {
     // Récupération des éléments nécessaires
     const modal = document.getElementById('createProjectModal');
     const openBtn = document.querySelector('.btn'); // bouton qui ouvre la modal
     const cancelBtn = document.getElementById('cancelModalBtn'); // bouton pour fermer la modal
 
-    // On vérifie que les éléments existent
+    // Vérifier que les éléments existent
     if (openBtn && cancelBtn && modal) {
-        // Quand on clique sur "Créer un projet", on affiche la modal
+        // Ouvrir la modal
         openBtn.addEventListener('click', () => {
             modal.classList.remove('hidden');
         });
 
-        // Quand on clique sur "Annuler", on masque la modal
+        // Fermer la modal
         cancelBtn.addEventListener('click', () => {
             modal.classList.add('hidden');
         });
