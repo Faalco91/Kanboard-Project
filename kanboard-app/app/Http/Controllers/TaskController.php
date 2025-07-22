@@ -17,14 +17,16 @@ class TaskController extends Controller
         Log::info('User ID:', ['user_id' => auth()->id()]);
         
         try {
-            // Validation des données
+            // Validation complète avec tous les champs
             $validated = $request->validate([
                 'title' => 'required|string|max:255',
+                'description' => 'nullable|string|max:1000',
                 'category' => 'nullable|string|max:255',
                 'color' => 'nullable|string|max:7',
                 'column' => 'required|string|max:255',
                 'project_id' => 'required|exists:projects,id',
                 'due_date' => 'nullable|date',
+                'priority' => 'nullable|in:low,medium,high,urgent',
             ]);
 
             Log::info('Validation passed:', $validated);
@@ -47,15 +49,17 @@ class TaskController extends Controller
 
             Log::info('User authorized, creating task...');
 
-            // Créer la tâche
+            //Créer la tâche avec TOUS les champs
             $task = Task::create([
                 'title' => $validated['title'],
+                'description' => $validated['description'] ?? null,
                 'category' => $validated['category'] ?? null,
                 'color' => $validated['color'] ?? null,
                 'column' => $validated['column'],
                 'project_id' => $validated['project_id'],
                 'user_id' => $user->id,
                 'due_date' => $validated['due_date'] ?? null,
+                'priority' => $validated['priority'] ?? 'medium',
             ]);
 
             Log::info('Task created:', $task->toArray());
@@ -94,13 +98,18 @@ class TaskController extends Controller
                 return response()->json(['error' => 'Accès non autorisé'], 403);
             }
 
+            // Validation complète avec tous les champs modifiables
             $validated = $request->validate([
                 'title' => 'sometimes|string|max:255',
+                'description' => 'nullable|string|max:1000',
                 'category' => 'nullable|string|max:255',
                 'color' => 'nullable|string|max:7',
                 'column' => 'sometimes|string|max:255',
+                'priority' => 'nullable|in:low,medium,high,urgent',
                 'due_date' => 'nullable|date',
+                'position' => 'sometimes|integer|min:0'
             ]);
+
 
             $updateData = $validated;
 
@@ -123,12 +132,24 @@ class TaskController extends Controller
             // Mettre à jour la tâche
             $task->update($updateData);
 
+            Log::info('Task update data:', [
+                'task_id' => $task->id,
+                'validated_data' => $validated
+            ]);
+
+            // Mettre à jour la tâche avec tous les champs
+            $task->update($validated);
+
+
+            Log::info('Task updated successfully:', $task->toArray());
+
             return response()->json($task->load('user', 'project'));
 
         } catch (\Exception $e) {
             Log::error('Task update error:', [
                 'error' => $e->getMessage(),
-                'task_id' => $task->id
+                'task_id' => $task->id,
+                'trace' => $e->getTraceAsString()
             ]);
             return response()->json([
                 'error' => 'Erreur lors de la mise à jour'
@@ -206,51 +227,56 @@ class TaskController extends Controller
     }
 
     public function show(Task $task)
-{
-    // Vérifier les permissions
-    $project = $task->project;
-    if (!$project->hasMember(auth()->user())) {
-        return response()->json(['error' => 'Accès non autorisé'], 403);
+    {
+        // Vérifier les permissions
+        $project = $task->project;
+        if (!$project->hasMember(auth()->user())) {
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+        }
+
+        // Charger les relations
+        $task->load('user', 'project');
+
+        return response()->json([
+            'id' => $task->id,
+            'title' => $task->title,
+            'description' => $task->description,
+            'category' => $task->category,
+            'color' => $task->color,
+            'column' => $task->column,
+            'due_date' => $task->due_date ? $task->due_date->format('Y-m-d') : null,
+            'priority' => $task->priority,
+            'user' => $task->user ? [
+                'id' => $task->user->id,
+                'name' => $task->user->name
+            ] : null,
+            'created_at' => $task->created_at,
+            'updated_at' => $task->updated_at
+        ]);
     }
 
-    // Charger les relations
-    $task->load('user', 'project');
-
-    return response()->json([
-        'id' => $task->id,
-        'title' => $task->title,
-        'description' => $task->description,
-        'category' => $task->category,
-        'color' => $task->color,
-        'column' => $task->column,
-        'due_date' => $task->due_date,
-        'priority' => $task->priority,
-        'user' => $task->user ? [
-            'id' => $task->user->id,
-            'name' => $task->user->name
-        ] : null,
-        'created_at' => $task->created_at,
-        'updated_at' => $task->updated_at
-    ]);
-}
-public function getData(Task $task)
-{
-    // Vérifier les permissions
-    if (!$task->project->hasMember(auth()->user())) {
-        return response()->json(['error' => 'Accès non autorisé'], 403);
+    public function getData(Task $task)
+    {
+        // Vérifier les permissions
+        if (!$task->project->hasMember(auth()->user())) {
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+        }
+        
+        return response()->json([
+            'id' => $task->id,
+            'title' => $task->title,
+            'description' => $task->description,
+            'category' => $task->category,
+            'color' => $task->color,
+            'column' => $task->column,
+            'due_date' => $task->due_date ? $task->due_date->format('Y-m-d') : null,
+            'priority' => $task->priority ?? 'medium',
+            'user' => $task->user ? [
+                'id' => $task->user->id,
+                'name' => $task->user->name
+            ] : null,
+            'created_at' => $task->created_at,
+            'updated_at' => $task->updated_at
+        ]);
     }
-    
-    return response()->json([
-        'id' => $task->id,
-        'title' => $task->title,
-        'description' => $task->description,
-        'category' => $task->category,
-        'color' => $task->color,
-        'column' => $task->column,
-        'due_date' => $task->due_date ? $task->due_date->format('Y-m-d') : null,
-        'priority' => $task->priority,
-        'created_at' => $task->created_at,
-        'updated_at' => $task->updated_at
-    ]);
-}
 }

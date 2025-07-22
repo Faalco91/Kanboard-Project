@@ -24,7 +24,7 @@
     --spacing-xl: 2rem;
 }
 
-/* ===== RESET ET BASE (gardé existant) ===== */
+/* ===== RESET ET BASE ===== */
 * {
     margin: 0;
     padding: 0;
@@ -358,7 +358,7 @@ header {
         box-shadow: 0 4px 15px rgba(16, 77, 121, 0.2);
     }
 
-/* ===== NOUVELLES SECTIONS (style adapté) ===== */
+/* ===== SECTIONS FEATURES ===== */
 .features-section {
     padding: 4rem 0;
     background-color: rgba(253, 253, 252, 0.5);
@@ -527,7 +527,7 @@ header {
         margin-bottom: 0;
     }
 
-/* ===== FOOTER (amélioré mais gardant le style) ===== */
+/* ===== FOOTER ===== */
 footer {
     padding: 3rem 1rem 2rem;
     width: 100%;
@@ -778,7 +778,7 @@ footer {
     }
 }
 
-/* ===== MODE SOMBRE (gardé existant et amélioré) ===== */
+/* ===== MODE SOMBRE ===== */
 @media (prefers-color-scheme: dark) {
     body {
         background-color: var(--bg-dark);

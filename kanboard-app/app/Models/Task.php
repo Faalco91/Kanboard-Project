@@ -27,6 +27,11 @@ class Task extends Model
         'completed_at' => 'datetime',
     ];
 
+    protected $attributes = [
+        'priority' => 'medium',
+        'column' => 'To Do',
+    ];
+
     // Relations
     public function project()
     {
@@ -38,9 +43,14 @@ class Task extends Model
         return $this->belongsTo(User::class);
     }
 
-    // Alias pour compatibilité
-    public function creator()
+    // Accesseurs/Mutateurs pour la priorité
+    public function getPriorityAttribute($value)
     {
-        return $this->user();
+        return $value ?? 'medium';
+    }
+
+    public function setPriorityAttribute($value)
+    {
+        $this->attributes['priority'] = $value ?: 'medium';
     }
 }
