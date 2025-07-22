@@ -94,6 +94,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{task}', [TaskController::class, 'destroy'])->name('destroy');
         Route::put('/{task}/status', [TaskController::class, 'updateStatus'])->name('update-status');
     });
+
+    // ===== STATISTICS ROUTES =====
+    Route::get('/statistics', function () {
+        return view('statistics');
+    })->name('statistics');
 });
 
 // ===== ROUTES D'AUTHENTIFICATION =====

@@ -4,7 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
+
+    "content-hash": "1e6dd7f2f7b8ad22073ff23866861a6a",
+
     "content-hash": "7c64cb3bdd40743d297c1a54d40bf56f",
+
     "packages": [
         {
             "name": "brick/math",
@@ -3549,6 +3553,7 @@
             "time": "2025-06-01T06:28:46+00:00"
         },
         {
+
             "name": "resend/resend-laravel",
             "version": "v0.19.0",
             "source": {
@@ -3618,6 +3623,7 @@
             "time": "2025-05-06T21:36:51+00:00"
         },
         {
+
             "name": "resend/resend-php",
             "version": "v0.18.1",
             "source": {
