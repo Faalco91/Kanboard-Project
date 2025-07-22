@@ -16,7 +16,8 @@ export default defineConfig({
                 'resources/css/calendar.css',
                 'resources/css/list.css',
                 'resources/js/app.js',
-                'resources/js/calendar.js'
+                'resources/js/calendar.js',
+                'resources/js/task.js'
             ],
             refresh: true,
         }),
